@@ -52,6 +52,8 @@ run_pair_interval() {
 
 run_ab() {
   command -v systemctl >/dev/null
+  local processes_before processes_after
+  processes_before=$(desktop_processes)
   printf 'A: stopping Quickshell; stabilizing for %ss\n' "$stabilize"
   systemctl --user stop fedora-sway-quickshell.service
   sleep "$stabilize"
@@ -69,10 +71,27 @@ run_ab() {
   b_sway_cpu=$(awk -F '\t' '$2=="cpu_ticks_delta" {print $3; exit}' <<<"$report_b")
   b_qs_cpu=$(awk -F '\t' '$2=="cpu_ticks_delta" {n++; if (n==2) {print $3; exit}}' <<<"$report_b")
   printf 'comparison\testimated\tincremental_shell_cpu_ticks\t%s\n' "$((b_sway_cpu + b_qs_cpu - a_cpu))"
+  processes_after=$(desktop_processes)
+  printf 'process_set_before\tmeasured\t%s\n' "$(tr '\n' ';' <<<"$processes_before")"
+  printf 'process_set_after\tmeasured\t%s\n' "$(tr '\n' ';' <<<"$processes_after")"
+  printf 'process_set_change\tmeasured\t'
+  diff --new-line-format='+ %L' --old-line-format='- %L' --unchanged-line-format='' \
+    <(printf '%s\n' "$processes_before") <(printf '%s\n' "$processes_after") || true
+}
+
+session_startup_metric() {
+  local target_usec shell_usec
+  target_usec=$(systemctl --user show fedora-sway-session.target -p ActiveEnterTimestampMonotonic --value 2>/dev/null || true)
+  shell_usec=$(systemctl --user show fedora-sway-quickshell.service -p ActiveEnterTimestampMonotonic --value 2>/dev/null || true)
+  if [[ $target_usec =~ ^[0-9]+$ && $shell_usec =~ ^[0-9]+$ && $shell_usec -ge $target_usec ]]; then
+    printf 'session_to_shell_ready_ms\tmeasured\t%s\n' "$(((shell_usec - target_usec) / 1000))"
+  else
+    printf 'session_to_shell_ready_ms\tunavailable\tsystemd monotonic timestamps missing\n'
+  fi
 }
 
 case ${1:-snapshot} in
-  snapshot) printf 'classification\tmeasured\n'; desktop_processes ;;
+  snapshot) printf 'classification\tmeasured\n'; desktop_processes; session_startup_metric ;;
   interval) run_interval "${2:-process}" "${3:-$(pgrep -xo "${2:-sway}")}" ;;
   ab) run_ab ;;
   *) printf 'Usage: %s {snapshot|interval [label] [pid]|ab}\n' "$0" >&2; exit 2 ;;

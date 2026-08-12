@@ -15,4 +15,6 @@ grep -Fq $'classification\tmeasured' <<<"$report"
 grep -Fq $'metric\tcpu_ticks_delta' <<<"$report"
 grep -Fq $'metric\trss_delta_kib' <<<"$report"
 grep -Fq $'wakeups\tunavailable' <<<"$report"
+grep -Fq 'session_to_shell_ready_ms' "$ROOT/benchmark.sh"
+grep -Fq 'process_set_change' "$ROOT/benchmark.sh"
 echo 'benchmark contract: PASS'
