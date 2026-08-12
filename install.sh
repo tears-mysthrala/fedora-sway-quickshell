@@ -49,9 +49,10 @@ fi
 
 if [[ $MODE == dry-run ]]; then
   log INFO "Would install: ${missing[*]:-(none)}"
-  for name in sway quickshell swayidle swaylock environment.d systemd; do
+  for name in sway quickshell swayidle swaylock; do
     log INFO "Would manage ~/.config/$name"
   done
+  log INFO 'Would manage project files within ~/.config/environment.d and ~/.config/systemd/user'
   exit 0
 fi
 
@@ -65,8 +66,10 @@ ensure_managed_link "$ROOT/config/sway" "$HOME/.config/sway"
 ensure_managed_link "$ROOT/config/quickshell" "$HOME/.config/quickshell"
 ensure_managed_link "$ROOT/config/swayidle" "$HOME/.config/swayidle"
 ensure_managed_link "$ROOT/config/swaylock" "$HOME/.config/swaylock"
-ensure_managed_link "$ROOT/config/environment.d" "$HOME/.config/environment.d"
-ensure_managed_link "$ROOT/config/systemd/user" "$HOME/.config/systemd/user"
+ensure_managed_link "$ROOT/config/environment.d/10-fedora-sway-demo.conf" "$HOME/.config/environment.d/10-fedora-sway-demo.conf"
+for unit in "$ROOT"/config/systemd/user/*; do
+  ensure_managed_link "$unit" "$HOME/.config/systemd/user/$(basename "$unit")"
+done
 ensure_managed_link "$ROOT/scripts" "$HOME/.local/bin/fedora-sway-demo"
 
 systemctl --user daemon-reload
