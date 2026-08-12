@@ -3,6 +3,7 @@ brightnessctl
 foot
 grim
 jq
+libnotify
 lxqt-policykit
 quickshell
 slurp
@@ -14,4 +15,3 @@ xdg-desktop-portal
 xdg-desktop-portal-gtk
 xdg-desktop-portal-wlr
 xorg-x11-server-Xwayland
-
