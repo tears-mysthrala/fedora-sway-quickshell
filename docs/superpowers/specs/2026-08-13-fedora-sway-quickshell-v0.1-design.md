@@ -52,7 +52,9 @@ Quickshell owns only the visible shell:
 - volume and brightness OSD;
 - simple notification popups.
 
-The implementation uses Quickshell's event-oriented integrations: I3/Sway IPC, PipeWire, UPower, desktop entries, and the notification service. Network state uses a persistent NetworkManager event source or direct supported integration, never repeated `nmcli` execution. The clock updates once per minute, aligned to a minute boundary. OSD dismissal uses a one-shot timeout. These are the only project-created periodic or timed activities unless a later measured requirement is documented.
+The implementation uses Quickshell's event-oriented integrations: I3/Sway IPC, PipeWire, UPower, desktop entries, and the notification service. Network state uses a persistent NetworkManager event source or direct supported integration, never repeated `nmcli` execution. If no reasonable event-driven source exists, the corresponding informational widget is omitted. The clock updates once per minute, aligned to a minute boundary. OSD and notification dismissal use one-shot timeouts. These are the only project-created periodic or timed activities unless a later measured requirement is documented.
+
+Notifications in v0.1 consist only of a notification daemon and immediate popup. A popup disappears after its one-shot timeout without animation. There is no history, notification center, persistence, database, complex state model, or non-trivial action handling.
 
 QML must not contain `Behavior`, `NumberAnimation`, `PropertyAnimation`, `SpringAnimation`, `SequentialAnimation`, or `ParallelAnimation` in v0.1.
 
@@ -67,11 +69,11 @@ The mandatory explicit package set uses real Fedora names:
 - audio/session services: `pipewire`, `pipewire-pulseaudio`, `wireplumber`;
 - system integration: `NetworkManager`, `upower`, `polkit`, `lxqt-policykit`;
 - workstation tools: `foot`, `grim`, `slurp`, `wl-clipboard`, `brightnessctl`;
-- diagnostics and scripting: `bash`, `coreutils`, `findutils`, `grep`, `procps-ng`, `systemd`, `util-linux`, `jq`.
+- diagnostics and scripting: `bash`, `coreutils`, `findutils`, `grep`, `procps-ng`, `systemd`, `util-linux` and, only if its actual use materially improves safe JSON parsing, `jq`.
 
 BlueZ is optional because not every VM or target has Bluetooth. GPU measurement tools are optional and hardware-specific. Every explicit dependency and considered alternative is documented in `docs/DEPENDENCIES.md`; RPM transaction dependencies are not duplicated as project choices.
 
-Package availability is checked at runtime with DNF before installation. Fedora 44 is a hard requirement for v0.1 because it supplies Quickshell in the official repository. No COPR or Hyprland ecosystem package is permitted.
+Package availability is checked at runtime with DNF before installation. Fedora 44 is a hard requirement for v0.1 because it supplies Quickshell in the official repository. The supported release is defined once in a shared project constants file and consumed by the installer, doctor, tests, VM harness, and documentation checks. No COPR or Hyprland ecosystem package is permitted.
 
 ## Portal Selection
 
@@ -125,9 +127,9 @@ VM provisioning remains under `scripts/vm/` and is never called by `install.sh`.
 `install.sh` supports normal, `--check`, and `--dry-run` modes. It:
 
 1. verifies Fedora and version 44;
-2. checks enabled official repositories and metadata access;
-3. rejects enabled third-party repositories for project package resolution;
-4. resolves every requested package before changing RPM state;
+2. checks repository metadata access without changing repository configuration;
+3. resolves every requested package before changing RPM state and verifies that the selected package origin is an allowed Fedora repository;
+4. permits unrelated third-party repositories to remain enabled but aborts if a project-managed package would resolve from an unauthorized origin;
 5. records which packages were absent before installation;
 6. installs only the declared package set;
 7. creates backups before replacing conflicting user paths;
@@ -138,6 +140,8 @@ VM provisioning remains under `scripts/vm/` and is never called by `install.sh`.
 Managed state is recorded below `~/.local/state/fedora-sway-quickshell-demo/`. Repeated execution converges without duplicate configuration or backups.
 
 `uninstall.sh` removes only managed links and project-owned user units. It restores a backup only when the destination is still project-managed and restoration cannot overwrite newer user data. It lists packages installed during bootstrap but never removes them automatically.
+
+Repository configuration is outside project ownership. No script enables, disables, adds, removes, or edits a user's repositories.
 
 ## Sway Configuration
 
@@ -175,7 +179,7 @@ Unavailable hardware is `[INFO]`, degraded integration is `[WARN]`, and a failed
 
 ## Performance Baseline
 
-`benchmark.sh` collects measurements without claiming universal thresholds:
+`benchmark.sh` collects measurements without claiming universal thresholds. Every reported field is labeled `measured`, `estimated`, or `unavailable`:
 
 - hardware and virtualization information;
 - Fedora, Sway, and Quickshell versions;
@@ -186,6 +190,15 @@ Unavailable hardware is `[INFO]`, degraded integration is `[WARN]`, and a failed
 - session-to-usable time using monotonic timestamps recorded by project user units;
 - project periodic timers and known long-lived event listeners;
 - GPU idle utilization only when a reliable, non-invasive hardware interface exists.
+
+The primary idle measurement is a controlled interval: wait for the session to stabilize, record T0, leave the session untouched for ten minutes, then record T+10m. The comparison records cumulative CPU time for Sway and Quickshell, initial and final RSS, RSS change, voluntary and involuntary context switches, process creation or disappearance, project timers, long-lived event listeners, and approximate wakeups only when a reliable non-invasive source exists.
+
+The VM acceptance run performs two matched ten-minute intervals:
+
+- A: Sway without Quickshell;
+- B: Sway with the complete v0.1 Quickshell configuration.
+
+The report compares CPU time, memory, context switches or wakeup estimates, processes, and GPU activity where available. The incremental shell cost is reported as B minus A without an invented pass/fail threshold.
 
 `docs/PERFORMANCE.md` contains the measurement procedure and a template. Generated machine results are timestamped and ignored by Git unless deliberately promoted into documentation. A first committed baseline is added only after the Fedora VM reaches a stable idle state.
 
@@ -212,7 +225,7 @@ VM acceptance verifies:
 4. portal file chooser, URI opening, screenshot, screencast, and PipeWire sharing;
 5. terminate Quickshell while Sway, applications, swayidle, swaylock, polkit, and terminal keybinding remain functional;
 6. restart Quickshell without ending the session;
-7. collect the first performance baseline;
+7. collect the first A/B ten-minute performance baseline;
 8. confirm SELinux enforcing and firewalld active.
 
 Checks requiring visual or security-sensitive interaction are explicitly marked manual and accompanied by commands and expected evidence. Results are not reported as verified until observed in the VM.
