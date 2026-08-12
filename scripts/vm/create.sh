@@ -37,7 +37,6 @@ virt-install \
   --network user,model=virtio \
   --graphics vnc,listen=127.0.0.1 \
   --video virtio \
-  --channel spicevmc \
   --os-variant fedora-unknown \
   --boot uefi \
   --console pty,target.type=serial \
