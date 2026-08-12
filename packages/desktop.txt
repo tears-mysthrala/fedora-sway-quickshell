@@ -1,0 +1,17 @@
+# Minimal Wayland workstation and selected tools.
+brightnessctl
+foot
+grim
+jq
+lxqt-policykit
+quickshell
+slurp
+sway
+swayidle
+swaylock
+wl-clipboard
+xdg-desktop-portal
+xdg-desktop-portal-gtk
+xdg-desktop-portal-wlr
+xorg-x11-server-Xwayland
+
