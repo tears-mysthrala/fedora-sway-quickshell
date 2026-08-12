@@ -2,7 +2,9 @@
 
 The harness owns only `.vm/fedora-sway-demo-f44.qcow2` and the libvirt domain
 `fedora-sway-demo-f44`. It refuses to overwrite either. It does not embed a
-password or automate account creation.
+password or automate account creation. It uses the unprivileged
+`qemu:///session` connection and user-mode networking, so it does not create a
+host bridge or change host firewall configuration.
 
 ```bash
 ./scripts/vm/fetch-media.sh

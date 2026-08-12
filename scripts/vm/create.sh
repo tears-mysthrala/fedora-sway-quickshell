@@ -21,10 +21,11 @@ fi
 [[ -f $iso && -f $checksum && -f $kickstart ]] || { printf 'Fetch media and run prepare-kickstart.sh first.\n' >&2; exit 1; }
 (cd "$vm_dir" && sha256sum --ignore-missing -c "$(basename "$checksum")")
 [[ ! -e $disk ]] || { printf 'Refusing to overwrite %s\n' "$disk" >&2; exit 1; }
-! virsh dominfo "$name" >/dev/null 2>&1 || { printf 'Refusing to replace existing VM %s\n' "$name" >&2; exit 1; }
+! virsh --connect qemu:///session dominfo "$name" >/dev/null 2>&1 || { printf 'Refusing to replace existing VM %s\n' "$name" >&2; exit 1; }
 
 qemu-img create -f qcow2 "$disk" 28G
 virt-install \
+  --connect qemu:///session \
   --name "$name" \
   --memory 3072 \
   --vcpus 2 \
@@ -33,7 +34,7 @@ virt-install \
   --location "$iso" \
   --initrd-inject "$kickstart" \
   --extra-args 'inst.ks=file:/acceptance.ks console=ttyS0,115200n8 serial' \
-  --network network=default,model=virtio \
+  --network user,model=virtio \
   --graphics vnc,listen=127.0.0.1 \
   --video virtio \
   --channel spicevmc \
