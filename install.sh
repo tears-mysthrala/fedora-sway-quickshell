@@ -67,8 +67,8 @@ ensure_managed_link "$ROOT/config/swayidle" "$HOME/.config/swayidle"
 ensure_managed_link "$ROOT/config/swaylock" "$HOME/.config/swaylock"
 ensure_managed_link "$ROOT/config/environment.d" "$HOME/.config/environment.d"
 ensure_managed_link "$ROOT/config/systemd/user" "$HOME/.config/systemd/user"
+ensure_managed_link "$ROOT/scripts" "$HOME/.local/bin/fedora-sway-demo"
 
 systemctl --user daemon-reload
 log OK 'Installation converged successfully.'
 log INFO 'Log out and start the packaged Sway session. A reboot is not required.'
-

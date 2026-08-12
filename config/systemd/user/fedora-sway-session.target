@@ -1,0 +1,8 @@
+[Unit]
+Description=Fedora Sway demo session components
+BindsTo=graphical-session.target
+After=graphical-session-pre.target
+Wants=fedora-sway-quickshell.service fedora-sway-idle.service fedora-sway-polkit.service
+
+[Install]
+WantedBy=graphical-session.target
