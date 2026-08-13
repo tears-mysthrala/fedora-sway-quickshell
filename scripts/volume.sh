@@ -6,5 +6,4 @@ case ${1:-} in
   mute) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
   *) printf 'Usage: %s {up|down|mute}\n' "$0" >&2; exit 2 ;;
 esac
-qs ipc call osd volume >/dev/null 2>&1 || true
-
+"$(dirname -- "$0")/qs-ipc.sh" call osd volume >/dev/null 2>&1 || true

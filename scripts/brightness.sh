@@ -6,5 +6,4 @@ case ${1:-} in
   down) brightnessctl set 5%- ;;
   *) printf 'Usage: %s {up|down}\n' "$0" >&2; exit 2 ;;
 esac
-qs ipc call osd brightness >/dev/null 2>&1 || true
-
+"$(dirname -- "$0")/qs-ipc.sh" call osd brightness >/dev/null 2>&1 || true

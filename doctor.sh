@@ -22,7 +22,7 @@ else fail 'Fedora identity unavailable'; fi
 
 if [[ ${XDG_SESSION_TYPE:-} == wayland && -n ${WAYLAND_DISPLAY:-} && -S ${XDG_RUNTIME_DIR:-/nonexistent}/${WAYLAND_DISPLAY:-none} ]]; then ok 'Wayland socket available'; else warn 'Wayland session/socket not active in this invocation'; fi
 if swaymsg -t get_version >/dev/null 2>&1; then ok 'Sway IPC responsive'; else fail 'Sway IPC unavailable'; fi
-if qs ipc show >/dev/null 2>&1 && active_user_unit fedora-sway-quickshell.service; then ok 'Quickshell IPC and user service active'; else fail 'Quickshell IPC or user service unavailable'; fi
+if "$ROOT/scripts/qs-ipc.sh" show >/dev/null 2>&1 && active_user_unit fedora-sway-quickshell.service; then ok 'Quickshell IPC and user service active'; else fail 'Quickshell IPC or user service unavailable'; fi
 if [[ -n ${DISPLAY:-} ]] && pgrep -x Xwayland >/dev/null; then ok 'XWayland display and process active'; else warn 'XWayland not observed (it may start on demand)'; fi
 
 if active_user_unit xdg-desktop-portal.service && has_user_bus_name org.freedesktop.portal.Desktop; then ok 'xdg-desktop-portal active on D-Bus'; else fail 'xdg-desktop-portal frontend unavailable'; fi
@@ -40,8 +40,14 @@ if busctl --system status org.freedesktop.UPower >/dev/null 2>&1; then
 else info 'UPower unavailable'; fi
 
 printf '\nPERFORMANCE\n\n'
-for pair in 'Sway:sway' 'Quickshell:quickshell'; do
-  label=${pair%%:*}; process=${pair#*:}; pid=$(pgrep -xo "$process" 2>/dev/null || true)
+for pair in 'Sway:sway' 'Quickshell:fedora-sway-quickshell.service'; do
+  label=${pair%%:*}; process=${pair#*:}
+  if [[ $label == Quickshell ]]; then
+    pid=$(systemctl --user show -p MainPID --value "$process" 2>/dev/null || true)
+    [[ $pid != 0 ]] || pid=
+  else
+    pid=$(pgrep -xo "$process" 2>/dev/null || true)
+  fi
   if [[ -n $pid ]]; then printf '%-20s %s KiB (measured RSS)\n' "$label RSS:" "$(ps -o rss= -p "$pid" | tr -d ' ')"; else printf '%-20s unavailable\n' "$label RSS:"; fi
 done
 printf '%-20s disabled by project configuration\n' 'Animations:'
@@ -49,4 +55,3 @@ if grep -RqiE 'while[[:space:]]+true|sleep[[:space:]]+0\.' "$ROOT/config" "$ROOT
 printf '%-20s Sway IPC, PipeWire, NetworkManager, UPower, notifications\n' 'Event listeners:'
 
 exit "$failures"
-

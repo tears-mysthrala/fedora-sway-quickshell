@@ -52,11 +52,11 @@ run_pair_interval() {
 
 run_ab() {
   command -v systemctl >/dev/null
-  local processes_before processes_after
-  processes_before=$(desktop_processes)
+  local processes_a processes_b
   printf 'A: stopping Quickshell; stabilizing for %ss\n' "$stabilize"
   systemctl --user stop fedora-sway-quickshell.service
   sleep "$stabilize"
+  processes_a=$(desktop_processes)
   local sway_pid report_a report_b a_cpu b_sway_cpu b_qs_cpu
   sway_pid=$(pgrep -xo sway)
   report_a=$(run_interval A_sway_only "$sway_pid")
@@ -64,34 +64,38 @@ run_ab() {
   printf 'B: starting Quickshell; stabilizing for %ss\n' "$stabilize"
   systemctl --user start fedora-sway-quickshell.service
   sleep "$stabilize"
+  processes_b=$(desktop_processes)
   sway_pid=$(pgrep -xo sway)
-  report_b=$(run_pair_interval B_sway "$sway_pid" B_quickshell "$(pgrep -xo quickshell)")
+  local quickshell_pid
+  quickshell_pid=$(systemctl --user show -p MainPID --value fedora-sway-quickshell.service)
+  [[ $quickshell_pid =~ ^[1-9][0-9]*$ ]] || { printf 'Quickshell service has no live MainPID\n' >&2; return 1; }
+  report_b=$(run_pair_interval B_sway "$sway_pid" B_quickshell "$quickshell_pid")
   printf '%s\n' "$report_b"
   a_cpu=$(awk -F '\t' '$2=="cpu_ticks_delta" {print $3; exit}' <<<"$report_a")
   b_sway_cpu=$(awk -F '\t' '$2=="cpu_ticks_delta" {print $3; exit}' <<<"$report_b")
   b_qs_cpu=$(awk -F '\t' '$2=="cpu_ticks_delta" {n++; if (n==2) {print $3; exit}}' <<<"$report_b")
-  printf 'comparison\testimated\tincremental_shell_cpu_ticks\t%s\n' "$((b_sway_cpu + b_qs_cpu - a_cpu))"
-  processes_after=$(desktop_processes)
-  printf 'process_set_before\tmeasured\t%s\n' "$(tr '\n' ';' <<<"$processes_before")"
-  printf 'process_set_after\tmeasured\t%s\n' "$(tr '\n' ';' <<<"$processes_after")"
+  printf 'comparison\tmeasured\tquickshell_cpu_ticks\t%s\n' "$b_qs_cpu"
+  printf 'comparison\testimated\ttotal_cpu_ticks_B_minus_A\t%s\tsequential intervals; scheduler quantization may dominate\n' "$((b_sway_cpu + b_qs_cpu - a_cpu))"
+  printf 'process_set_A\tmeasured\t%s\n' "$(tr '\n' ';' <<<"$processes_a")"
+  printf 'process_set_B\tmeasured\t%s\n' "$(tr '\n' ';' <<<"$processes_b")"
   printf 'process_set_change\tmeasured\t'
   diff --new-line-format='+ %L' --old-line-format='- %L' --unchanged-line-format='' \
-    <(printf '%s\n' "$processes_before") <(printf '%s\n' "$processes_after") || true
+    <(printf '%s\n' "$processes_a") <(printf '%s\n' "$processes_b") || true
 }
 
 session_startup_metric() {
-  local target_usec shell_usec
-  target_usec=$(systemctl --user show fedora-sway-session.target -p ActiveEnterTimestampMonotonic --value 2>/dev/null || true)
-  shell_usec=$(systemctl --user show fedora-sway-quickshell.service -p ActiveEnterTimestampMonotonic --value 2>/dev/null || true)
-  if [[ $target_usec =~ ^[0-9]+$ && $shell_usec =~ ^[0-9]+$ && $shell_usec -ge $target_usec ]]; then
-    printf 'session_to_shell_ready_ms\tmeasured\t%s\n' "$(((shell_usec - target_usec) / 1000))"
-  else
-    printf 'session_to_shell_ready_ms\tunavailable\tsystemd monotonic timestamps missing\n'
-  fi
+  printf 'session_to_shell_ready_ms\tunavailable\tno compositor-ready marker in v0.1; service restarts make unit timestamps misleading\n'
 }
 
 case ${1:-snapshot} in
-  snapshot) printf 'classification\tmeasured\n'; desktop_processes; session_startup_metric ;;
+  snapshot)
+    printf 'classification\tmeasured\n'
+    memory_snapshot
+    processes=$(desktop_processes)
+    printf 'desktop_process_count\testimated\t%s\n' "$(grep -c . <<<"$processes")"
+    printf '%s\n' "$processes"
+    session_startup_metric
+    ;;
   interval) run_interval "${2:-process}" "${3:-$(pgrep -xo "${2:-sway}")}" ;;
   ab) run_ab ;;
   *) printf 'Usage: %s {snapshot|interval [label] [pid]|ab}\n' "$0" >&2; exit 2 ;;

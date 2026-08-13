@@ -1,7 +1,7 @@
 [Unit]
 Description=Independent LXQt polkit authentication agent
 PartOf=fedora-sway-session.target
-After=graphical-session.target
+After=graphical-session.target pipewire.service wireplumber.service
 
 [Service]
 ExecStart=/usr/libexec/lxqt-policykit-agent
@@ -10,4 +10,3 @@ RestartSec=1
 
 [Install]
 WantedBy=fedora-sway-session.target
-

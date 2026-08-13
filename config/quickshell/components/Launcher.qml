@@ -7,8 +7,8 @@ FloatingWindow {
     id: root
     title: "Applications"
     visible: false
-    width: 520
-    height: 420
+    implicitWidth: 520
+    implicitHeight: 420
     color: "#111318"
 
     function rebuild(): void {
@@ -66,4 +66,3 @@ FloatingWindow {
         }
     }
 }
-

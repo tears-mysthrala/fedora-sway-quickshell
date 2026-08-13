@@ -73,11 +73,11 @@ The mandatory explicit package set uses real Fedora names:
 
 BlueZ is optional because not every VM or target has Bluetooth. GPU measurement tools are optional and hardware-specific. Every explicit dependency and considered alternative is documented in `docs/DEPENDENCIES.md`; RPM transaction dependencies are not duplicated as project choices.
 
-Package availability is checked at runtime with DNF before installation. Fedora 44 is a hard requirement for v0.1 because it supplies Quickshell in the official repository. The supported release is defined once in a shared project constants file and consumed by the installer, doctor, tests, VM harness, and documentation checks. No COPR or Hyprland ecosystem package is permitted.
+Package availability is checked at runtime with DNF before installation. Fedora 44 is a hard requirement for v0.1 because it supplies Quickshell in the official repository. The supported release is defined once in a shared project constants file and consumed by the installer, doctor, tests, VM harness, and documentation checks. Project packages must resolve from the allowed official Fedora repositories.
 
 ## Portal Selection
 
-The project uses Fedora's Sway portal selection and does not copy Hyprland configuration:
+The project uses Fedora's packaged Sway portal selection:
 
 - `xdg-desktop-portal-wlr` supplies wlroots screenshot and screencast interfaces and exports screen capture through PipeWire;
 - `xdg-desktop-portal-gtk` supplies general GTK-backed interfaces such as file chooser and URI opening;

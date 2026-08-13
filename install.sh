@@ -22,7 +22,7 @@ source /etc/os-release
 command -v dnf >/dev/null || die 'dnf is unavailable.'
 
 log INFO "Checking Fedora $SUPPORTED_FEDORA_RELEASE repository metadata"
-dnf -q makecache --timer >/dev/null || die 'DNF metadata/connectivity check failed.'
+dnf -q makecache >/dev/null || die 'DNF metadata/connectivity check failed.'
 
 mapfile -t packages < <(load_packages)
 declare -a missing=()
@@ -32,8 +32,11 @@ for package in "${packages[@]}"; do
     continue
   fi
   missing+=("$package")
-  mapfile -t origins < <(dnf -q repoquery --available --latest-limit 1 \
-    --archlist="$(uname -m),noarch" --qf '%{repoid}' "$package" 2>/dev/null | sort -u)
+  if ! query_output=$(dnf -q repoquery --available --latest-limit 1 \
+    --arch="$(uname -m),noarch" --qf '%{repoid}' "$package" 2>&1); then
+    die "DNF could not resolve $package: $query_output"
+  fi
+  mapfile -t origins < <(printf '%s\n' "$query_output" | sed '/^[[:space:]]*$/d' | sort -u)
   (( ${#origins[@]} > 0 )) || die "Package unavailable: $package"
   for origin in "${origins[@]}"; do
     is_allowed_repo "$origin" || die "$package resolves from unauthorized repository: $origin"

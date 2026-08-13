@@ -9,6 +9,8 @@ for binding in 'exec $term' 'kill' 'fullscreen toggle' 'floating toggle' 'worksp
   grep -Fq "$binding" "$config"
 done
 grep -Fq 'fedora-sway-session.target' "$config"
+grep -Fq 'title="Applications"' "$config"
+grep -Fq 'Wants=pipewire.service wireplumber.service' "$ROOT/config/systemd/user/fedora-sway-session.target"
 
 grep -Fq 'before-sleep' "$ROOT/config/swayidle/config"
 grep -Fq 'swaylock' "$ROOT/config/swayidle/config"

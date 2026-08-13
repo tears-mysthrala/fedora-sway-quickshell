@@ -1,5 +1,4 @@
 //@ pragma UseQApplication
-//@ pragma DropExpensiveFonts
 import Quickshell
 import "components"
 
@@ -12,4 +11,3 @@ ShellRoot {
     Osd {}
     Notifications {}
 }
-

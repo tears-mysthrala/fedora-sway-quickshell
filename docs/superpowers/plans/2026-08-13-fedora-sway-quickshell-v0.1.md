@@ -15,7 +15,7 @@
 - Fedora Server 44 only; define `SUPPORTED_FEDORA_RELEASE=44` once.
 - Official Fedora repositories only for project-managed packages; unrelated enabled repositories are allowed.
 - SELinux enforcing and firewalld active; never weaken either.
-- No Hyprland packages, COPR, animation primitives, or avoidable polling.
+- No external package repositories, animation primitives, or avoidable polling.
 - Quickshell must remain non-critical to Sway, swayidle, swaylock, polkit, and terminal access.
 - `install.sh` is idempotent and preserves conflicting user data with backups.
 - Runtime acceptance evidence comes from a disposable Fedora 44 QEMU/KVM VM.
@@ -35,7 +35,7 @@
 **Interfaces:**
 - Produces: `SUPPORTED_FEDORA_RELEASE`, `PROJECT_ID`, `PROJECT_STATE_DIR`, `load_packages()`, `is_allowed_repo()`.
 
-- [ ] Write `test-package-contract.sh` to require one release definition, unique valid package names, no Hyprland/COPR terms in package files, and required Sway packages.
+- [ ] Write `test-package-contract.sh` to require one release definition, unique valid package names, only the declared Sway stack, and required Sway packages.
 - [ ] Run `bash tests/static/test-package-contract.sh` and confirm it fails because the contract files do not exist.
 - [ ] Add the constants, package manifests, and common functions; retain `jq` only if a later implementation consumes it.
 - [ ] Re-run the test and `bash -n scripts/lib/common.sh`; expect success.

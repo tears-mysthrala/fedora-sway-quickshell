@@ -16,7 +16,7 @@ exec_always dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY
 exec_always systemctl --user start fedora-sway-session.target
 
 bindsym $mod+Return exec $term
-bindsym $mod+d exec qs ipc call launcher toggle
+bindsym $mod+d exec $scripts/qs-ipc.sh call launcher toggle
 bindsym $mod+Shift+q kill
 bindsym $mod+f fullscreen toggle
 bindsym $mod+Shift+space floating toggle
@@ -69,5 +69,6 @@ bar {
     swaybar_command none
 }
 
-include /etc/sway/config.d/*
+for_window [app_id="org.quickshell" title="Applications"] floating enable, resize set 520 420, move position center
 
+include /etc/sway/config.d/*

@@ -29,20 +29,26 @@ installs no daemon.
 
 | Field | Value |
 |---|---|
-| Hardware | Pending Fedora 44 VM run |
+| Hardware | QEMU/KVM, 2 vCPU, 2896040 KiB RAM, virtio-gpu, 1280x800; Pixman/Qt software rendering because the acceptance VM has no 3D acceleration |
 | Fedora | 44 |
-| Sway | Pending |
-| Quickshell | Pending |
-| Idle RAM | Pending |
-| Sway RSS | Pending |
-| Quickshell RSS | Pending |
-| Idle CPU time A/B | Pending |
-| Context switches | Pending |
+| Sway | 1.11-3.fc44 |
+| Quickshell | 0.2.1 git snapshot dacfa9d, Fedora package |
+| RAM after login | 610928 KiB used from `/proc/meminfo`; measured, including the minimal OS and session |
+| Sway RSS | A: 23692 -> 27796 KiB; B: 27796 -> 27796 KiB |
+| Quickshell RSS | 76288 -> 76292 KiB; +4 KiB over B |
+| Idle CPU time A/B | 600 s A: Sway 2 ticks. 600 s B: Sway 0 ticks, Quickshell 1 tick. Measured sequentially; no threshold assigned. |
+| Context switches | A Sway: 16 voluntary, 0 involuntary. B Sway: 0/0; Quickshell: 11/1. |
 | Wakeups | Unavailable unless a reliable source is found |
-| GPU activity | Unavailable unless a reliable source is found |
+| GPU activity | Unavailable: this VM has no reliable accelerated GPU metric |
 | Project polling | Static scan: none |
 | Project timers | Clock minute boundary; one-shot notification/OSD timeouts |
 
-These pending fields are not acceptance evidence. They must be replaced by
-observed VM output before v0.1 is called runtime-verified.
+The first report's signed total `B-A` was -1 tick because sequential intervals
+and scheduler tick quantization dominate at this activity level. It is retained
+as raw evidence but is not interpreted as a negative cost. The corrected tool
+reports Quickshell's directly measured ticks separately and labels the signed
+total comparison as estimated.
 
+Session-to-shell-ready time is currently `unavailable`: v0.1 has no compositor
+ready marker, and service activation timestamps become misleading after a
+Quickshell restart. No value is preferable to a false measurement.

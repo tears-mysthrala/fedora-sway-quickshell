@@ -21,6 +21,16 @@ proc_context_switches() {
 }
 
 desktop_processes() {
-  ps -u "$(id -u)" -o pid=,comm= | awk '$2 ~ /^(sway|swayidle|swaylock|quickshell|Xwayland|wireplumber|pipewire|lxqt-policykit-agent|xdg-desktop-portal)/'
+  ps -u "$(id -u)" -o pid=,comm= | awk '$2 ~ /^(sway|swayidle|swaylock|qs|Xwayland|wireplumber|pipewire|lxqt-policykit-|xdg-desktop-)/'
 }
 
+memory_snapshot() {
+  awk '
+    /^MemTotal:/ {total=$2}
+    /^MemAvailable:/ {available=$2}
+    END {
+      printf "memory_total_kib\tmeasured\t%d\n", total
+      printf "memory_used_kib\tmeasured\t%d\n", total-available
+    }
+  ' /proc/meminfo
+}

@@ -5,12 +5,13 @@ transitive RPM dependencies are intentionally omitted.
 
 | Package | Function and necessity | Alternatives considered |
 |---|---|---|
-| `sway` | Wayland compositor, window manager, workspaces, and IPC. | Hyprland was rejected because Fedora 44 does not package the required stack and the project needs no effects. |
+| `sway` | Wayland compositor, window manager, workspaces, and IPC. | Other compositors add no v0.1 benefit over Fedora's maintained Sway package. |
 | `quickshell` | QML shell for the bar, launcher, OSD, and notification popup. | Waybar and external launchers would split the UI and do not test the requested Quickshell layer. |
 | `swayidle`, `swaylock` | Independent idle policy and PAM-backed locking. | Keeping these in Quickshell would make the visual shell security-critical. |
 | `xdg-desktop-portal`, `xdg-desktop-portal-wlr`, `xdg-desktop-portal-gtk` | Portal frontend, wlroots capture, and general GTK portal interfaces. All three have distinct roles. | A GNOME/KDE backend would pull in a broader desktop stack. |
 | `pipewire`, `pipewire-pulseaudio`, `wireplumber` | Fedora audio graph, PulseAudio compatibility, and session policy. | No custom audio server is justified. |
 | `NetworkManager` | Fedora network service and event source. | Repeated `nmcli` polling is prohibited. |
+| `dbus-daemon` | Provides `dbus-run-session`, used to create an isolated D-Bus session when Sway is started directly from a Fedora Server TTY. | `dbus-broker` remains Fedora's system implementation but does not provide this launcher utility. |
 | `upower` | Event-driven power and battery state. | Direct sysfs polling would add custom hardware logic. |
 | `polkit`, `lxqt-policykit` | System authorization and an independent maintained graphical agent. | Quickshell's agent support is deliberately excluded from the critical path. |
 | `xorg-x11-server-Xwayland` | Compatibility for X11-only applications. | Pure Wayland cannot meet the XWayland acceptance criterion. |

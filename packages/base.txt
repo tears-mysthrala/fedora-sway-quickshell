@@ -1,8 +1,8 @@
 # Fedora-owned system/session services used explicitly by the demo.
 NetworkManager
+dbus-daemon
 pipewire
 pipewire-pulseaudio
 polkit
 upower
 wireplumber
-
