@@ -24,6 +24,31 @@ transitive RPM dependencies are intentionally omitted.
 | `Thunar`, `mousepad` | Lightweight conventional file manager and graphical text editor. | Larger desktop suites are outside scope. |
 | `pavucontrol` | Maintained graphical PipeWire/PulseAudio diagnostic and control surface. | The shell widget remains intentionally small and is not an audio routing UI. |
 | `imv` | Small Wayland-capable image viewer for screenshots and local images. | Browser-only viewing would weaken the basic offline application set. |
+| `git`, `git-lfs` | MKDL source control, large-file pointers, and Forgejo/GitHub interoperability. | Both are used by the existing repositories. |
+| `gcc`, `gcc-c++`, `make`, `cmake`, `openssl-devel` | Native compilation surface for BEAM NIFs and other project dependencies. | Installing compilers only after a dependency fails makes setup non-reproducible. |
+| `podman`, `podman-compose`, `buildah`, `skopeo` | Rootless OCI development, Compose-compatible labs, image building and inspection. | Docker would require a third-party repository and a privileged daemon. |
+| `postgresql` | PostgreSQL client tools used by Kurogane development and diagnostics. | The server is deliberately not enabled or initialized by the workstation installer. |
+| `nodejs22`, `nodejs22-bin` | Governed JavaScript tests requiring `node`; the unversioned binary package exposes `node`. | npm is intentionally omitted because Kurogane's supply-chain policy prohibits its normal dependency path. |
+| `python3`, `python3-devel`, `python3-pip` | Existing repository checks and native Python extension builds. | Fedora's system Python remains authoritative; pip is not invoked by the installer. |
+| `rust`, `cargo` | Rust/NIF development and auditing. | The Fedora toolchain is sufficient for the workstation baseline. |
+| `neovim`, `ripgrep`, `ShellCheck` | Editor, fast code search, and shell validation. | They cover the common terminal workflow without installing an IDE ecosystem. |
+
+The installer disables weak dependencies for its DNF transaction. This avoids
+implicitly adding npm, offline Node documentation, full locale data and
+cross-architecture emulators; users may install any of them explicitly.
+
+### Elixir and Erlang
+
+Fedora 44 currently resolves `elixir` 1.19.5 and Erlang/OTP 26, while Kurogane
+Hub requires Elixir 1.20.1 or newer and its current CI image uses OTP 29.
+Installing those RPMs would create a plausible-looking but incompatible native
+toolchain. The demo therefore installs no host Elixir/Erlang RPM.
+
+`scripts/mkdl-elixir.sh` runs the current Kurogane CI toolchain through rootless
+Podman. The image reference is centralized in `config/mkdl-toolchain.conf` and
+pinned by SHA-256 digest. It is fetched only when the developer invokes the
+script, never during desktop login or as a resident service. This OCI image is
+an explicit development input, not a Fedora package or package repository.
 
 BlueZ packages are optional because neither VMs nor all laptops expose a
 Bluetooth adapter.

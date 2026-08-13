@@ -1,0 +1,23 @@
+# MKDL development workstation tools from Fedora's official repositories.
+ShellCheck
+buildah
+cargo
+cmake
+gcc
+gcc-c++
+git
+git-lfs
+make
+neovim
+nodejs22
+nodejs22-bin
+openssl-devel
+podman
+podman-compose
+postgresql
+python3
+python3-devel
+python3-pip
+ripgrep
+rust
+skopeo

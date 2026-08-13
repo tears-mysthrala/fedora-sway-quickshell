@@ -72,6 +72,26 @@ software from active processes, services, D-Bus integration, and checks that
 require manual interaction. Run `./benchmark.sh ab` only when ready to leave
 the machine untouched for two ten-minute measurement intervals.
 
+## MKDL development toolchain
+
+The default install includes the small native development surface used by MKDL:
+Git/LFS, rootless Podman and Compose tooling, C/C++, Rust, Python, PostgreSQL
+client tools, Node 22 (without npm), Neovim, ripgrep and ShellCheck.
+
+Do not install Fedora 44's native `elixir` RPM for Kurogane Hub: it is older
+than the repository's runtime floor. Use the digest-pinned CI-compatible
+toolchain instead:
+
+```bash
+cd ~/Work/kurogane-hub
+/path/to/fedora-sway-demo/scripts/mkdl-elixir.sh elixir --version
+/path/to/fedora-sway-demo/scripts/mkdl-elixir.sh mix test
+```
+
+The first invocation downloads the pinned OCI image. It runs rootless, mounts
+the current working directory plus a dedicated tool cache, and leaves no
+Elixir service resident.
+
 ## Removal
 
 ```bash

@@ -61,7 +61,10 @@ fi
 
 if (( ${#missing[@]} > 0 )); then
   log INFO "Installing ${#missing[@]} packages with DNF"
-  sudo dnf install --assumeyes "${missing[@]}"
+  # Keep the declared surface exact. Fedora recommends large optional payloads
+  # for some developer tools (npm, docs, cross-architecture emulators); none is
+  # required by this project and all remain available for explicit installation.
+  sudo dnf install --assumeyes --setopt=install_weak_deps=False "${missing[@]}"
   for package in "${missing[@]}"; do record_installed_package "$package"; done
 fi
 

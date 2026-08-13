@@ -4,6 +4,8 @@ set -u
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 PROJECT_ROOT=$ROOT
 source "$ROOT/scripts/lib/common.sh"
+# shellcheck source=config/mkdl-toolchain.conf
+source "$ROOT/config/mkdl-toolchain.conf"
 failures=0
 
 ok() { printf '[OK] %s\n' "$1"; }
@@ -38,6 +40,25 @@ if active_system_unit NetworkManager.service && nmcli -t -f STATE general status
 if busctl --system status org.freedesktop.UPower >/dev/null 2>&1; then
   if upower -e 2>/dev/null | grep -q battery; then ok 'UPower active; battery present'; else info 'UPower active; battery unavailable'; fi
 else info 'UPower unavailable'; fi
+
+printf '\nDEVELOPMENT\n\n'
+missing_dev=()
+for dev_command in git podman node python3 rustc cargo psql nvim rg shellcheck; do
+  command -v "$dev_command" >/dev/null 2>&1 || missing_dev+=("$dev_command")
+done
+if (( ${#missing_dev[@]} == 0 )); then
+  ok 'MKDL native development commands available'
+else
+  fail "MKDL development commands missing: ${missing_dev[*]}"
+fi
+if command -v npm >/dev/null 2>&1; then warn 'npm present (not installed or required by this project)'; else info 'npm absent by design'; fi
+if command -v elixir >/dev/null 2>&1; then
+  warn 'Host Elixir present; verify it independently against the repository runtime floor'
+elif podman image exists "$MKDL_ELIXIR_IMAGE" 2>/dev/null; then
+  ok 'Digest-pinned MKDL Elixir OCI toolchain cached'
+else
+  info 'MKDL Elixir OCI toolchain not cached; mkdl-elixir.sh fetches it on first use'
+fi
 
 printf '\nPERFORMANCE\n\n'
 for pair in 'Sway:sway' 'Quickshell:fedora-sway-quickshell.service'; do
