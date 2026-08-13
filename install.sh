@@ -30,9 +30,35 @@ codex_binary=$codex_prefix/bin/codex
 declare -a missing=()
 for package in "${packages[@]}"; do
   if rpm -q "$package" >/dev/null 2>&1; then
-    mapfile -t installed_origins < <(dnf -q repoquery --installed --qf '%{from_repo}' "$package" | sed '/^[[:space:]]*$/d' | sort -u)
-    for origin in "${installed_origins[@]}"; do
-      is_allowed_repo "$origin" || die "Installed package $package came from unauthorized repository: $origin"
+    mapfile -t installed_records < <(dnf -q repoquery --installed \
+      --qf $'%{from_repo}\t%{name}\t%{epoch}\t%{version}\t%{release}\t%{arch}\n' "$package" |
+      sed '/^[[:space:]]*$/d' | sort -u)
+    (( ${#installed_records[@]} > 0 )) || die "DNF could not inspect installed package $package."
+    for record in "${installed_records[@]}"; do
+      IFS=$'\t' read -r origin installed_name installed_epoch installed_version installed_release installed_arch <<<"$record"
+      if is_allowed_repo "$origin"; then continue; fi
+      if [[ $origin == '<unknown>' ]]; then
+        signature=$(rpm -q --qf '%{RSAHEADER:pgpsig}\n%{DSAHEADER:pgpsig}\n' "$package" | sed '/^(none)$/d')
+        [[ -n $signature ]] || die "Installed package $package has no RPM header signature."
+        mapfile -t available_records < <(dnf -q repoquery --available \
+          --qf $'%{repoid}\t%{name}\t%{epoch}\t%{version}\t%{release}\t%{arch}\n' "$package" |
+          sed '/^[[:space:]]*$/d' | sort -u)
+        matched_allowed_nevra=false
+        for available_record in "${available_records[@]}"; do
+          IFS=$'\t' read -r available_repo available_name available_epoch available_version available_release available_arch <<<"$available_record"
+          if is_allowed_repo "$available_repo" &&
+             [[ $available_name == "$installed_name" && $available_epoch == "$installed_epoch" &&
+                $available_version == "$installed_version" && $available_release == "$installed_release" &&
+                $available_arch == "$installed_arch" ]]; then
+            matched_allowed_nevra=true
+            break
+          fi
+        done
+        $matched_allowed_nevra || die "Installed package $package has unknown origin and no exact match in an allowed repository."
+        log OK "$package installed origin unavailable; exact signed package matches an allowed Fedora repository"
+        continue
+      fi
+      die "Installed package $package came from unauthorized repository: $origin"
     done
     log OK "$package already installed"
     continue
