@@ -33,7 +33,7 @@ virt-install \
   --disk "path=$disk,format=qcow2,bus=virtio" \
   --location "$iso" \
   --initrd-inject "$kickstart" \
-  --extra-args 'inst.ks=file:/acceptance.ks console=ttyS0,115200n8 serial' \
+  --extra-args 'inst.ks=file:/acceptance.ks console=ttyS0,115200n8' \
   --network user,model=virtio \
   --graphics vnc,listen=127.0.0.1 \
   --video virtio \
@@ -42,4 +42,4 @@ virt-install \
   --console pty,target.type=serial \
   --noautoconsole
 
-printf 'Created %s. Open it with: virt-viewer %s\n' "$name" "$name"
+printf 'Created %s. Open its serial console with: ./scripts/vm/run.sh\n' "$name"

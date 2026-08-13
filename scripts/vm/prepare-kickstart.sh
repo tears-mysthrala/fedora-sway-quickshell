@@ -36,7 +36,6 @@ reboot
 @core
 NetworkManager
 firewalld
-git
 openssh-server
 sudo
 %end
