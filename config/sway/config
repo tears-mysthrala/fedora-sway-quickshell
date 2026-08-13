@@ -2,12 +2,13 @@ set $mod Mod4
 set $term alacritty
 set $scripts $HOME/.local/bin/fedora-sway-demo
 
-font pango:JetBrains Mono 10
+font pango:Cascadia Mono NF 10
 focus_follows_mouse no
 default_border pixel 1
 default_floating_border pixel 1
-gaps inner 0
-gaps outer 0
+gaps inner 6
+gaps outer 8
+smart_gaps off
 
 output * bg #111318 solid_color
 
@@ -28,8 +29,9 @@ exec_always systemctl --user start fedora-sway-session.target
 
 bindsym $mod+Return exec $term
 bindsym $mod+d exec $scripts/qs-ipc.sh call launcher toggle
+bindsym $mod+v exec $scripts/qs-ipc.sh call clipboard toggle
 bindsym $mod+a exec t3code
-bindsym $mod+b exec firefox
+bindsym $mod+b exec zen
 bindsym $mod+e exec thunar
 bindsym $mod+n exec $term -e nvim
 bindsym $mod+w kill
@@ -103,6 +105,13 @@ bar {
     swaybar_command none
 }
 
-for_window [app_id="org.quickshell" title="Applications"] floating enable, resize set 520 420, move position center
+for_window [app_id="org.quickshell" title="Applications"] floating enable, border none, resize set 600 480, move position center
+for_window [app_id="org.quickshell" title="Clipboard"] floating enable, border none, resize set 620 480, move position center
+for_window [app_id="org.quickshell" title="Ajustes del sistema"] floating enable, border none, resize set 780 540, move position center
+for_window [app_id="lxqt-policykit-agent"] floating enable, resize set 480 260, move position center, border pixel 1
+for_window [app_id="pavucontrol"] floating enable, resize set 760 540, move position center
+for_window [app_id="nm-connection-editor"] floating enable, resize set 760 540, move position center
+for_window [app_id="blueman-manager"] floating enable, resize set 760 540, move position center
+for_window [app_id="swappy"] floating enable, resize set 1000 700, move position center
 
 include /etc/sway/config.d/*

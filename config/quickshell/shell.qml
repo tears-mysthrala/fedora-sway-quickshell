@@ -9,9 +9,15 @@ ShellRoot {
             required property var modelData
             screen: modelData
             onLauncherRequested: launcher.toggle()
+            onQuickSettingsRequested: section => quickSettings.toggle(section)
+            onNotificationsRequested: notifications.toggleCenter()
+            onSystemSettingsRequested: systemSettings.toggle()
         }
     }
     Launcher { id: launcher }
+    Clipboard { id: clipboard }
+    QuickSettings { id: quickSettings }
+    SystemSettings { id: systemSettings }
     Osd {}
-    Notifications {}
+    Notifications { id: notifications }
 }

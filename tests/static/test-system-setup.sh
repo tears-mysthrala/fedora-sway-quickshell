@@ -32,9 +32,13 @@ if grep -Fq 'systemctl disable greetd.service' "$SCRIPT"; then
   echo 'FAIL: uninstall must restore the recorded greetd state' >&2
   exit 1
 fi
-grep -Fq 'cp --archive -- "$managed" "$backup"' "$SCRIPT" || {
-  echo 'FAIL: greetd backup must retain metadata and SELinux context' >&2
+grep -Fq 'cp --archive -- "$destination" "$backup"' "$SCRIPT" || {
+  echo 'FAIL: system-file backups must retain metadata and SELinux context' >&2
   exit 1
 }
+grep -Fq '/etc/dnf/automatic.conf' "$SCRIPT"
+grep -Fq 'dnf5-automatic.timer' "$SCRIPT"
+grep -Fq 'cockpit.socket' "$SCRIPT"
+grep -Fq 'restorecon -RF' "$SCRIPT"
 
 echo 'PASS: system setup guards display-manager detection'

@@ -45,6 +45,8 @@ if wpctl status >/dev/null 2>&1; then ok 'PipeWire graph responsive'; else fail 
 if active_user_unit wireplumber.service && pgrep -x wireplumber >/dev/null; then ok 'WirePlumber service and process active'; else fail 'WirePlumber inactive'; fi
 if active_system_unit polkit.service && pgrep -f '/usr/libexec/lxqt-policykit-agent' >/dev/null; then ok 'polkit service and independent agent active'; else fail 'polkit service or authentication agent inactive'; fi
 if active_user_unit fedora-sway-idle.service && pgrep -x swayidle >/dev/null; then ok 'swayidle service and process active'; else fail 'swayidle inactive'; fi
+if active_user_unit fedora-sway-clipboard.service; then ok 'clipboard history service active'; else fail 'clipboard history service inactive'; fi
+if systemctl --user is-active --quiet fedora-sway-wallpaper.timer; then ok 'wallpaper rotation timer active'; else fail 'wallpaper rotation timer inactive'; fi
 if rpm -q swaylock >/dev/null 2>&1 && [[ -r $HOME/.config/swaylock/config ]]; then info 'swaylock installed/configured; functional lock requires interactive test'; else fail 'swaylock package/config unavailable'; fi
 if active_system_unit NetworkManager.service && nmcli -t -f STATE general status >/dev/null 2>&1; then
   network_snapshot=$("$ROOT/scripts/qs-ipc.sh" call network snapshot 2>/dev/null || true)
@@ -70,6 +72,12 @@ if active_system_unit bluetooth.service; then
 else info 'Bluetooth service inactive'; fi
 if systemctl is-enabled --quiet cups.socket 2>/dev/null; then ok 'CUPS socket activation enabled'; else warn 'CUPS socket activation disabled'; fi
 if has_user_bus_name org.freedesktop.secrets; then ok 'Secret Service/keyring active'; else fail 'Secret Service/keyring unavailable'; fi
+if [[ $(xdg-mime query default image/png 2>/dev/null) == imv.desktop ]]; then ok 'imv is the default image viewer'; else warn 'imv is not the default PNG viewer'; fi
+if [[ -d /develop ]]; then
+  develop_fs=$(findmnt -no FSTYPE /develop 2>/dev/null || true)
+  develop_options=$(findmnt -no OPTIONS /develop 2>/dev/null || true)
+  if [[ $develop_fs == ext4 && $develop_options == *rw* ]]; then ok '/develop is mounted read-write on ext4'; else warn "/develop exists but mount state is unexpected (${develop_fs:-not mounted})"; fi
+else info '/develop is optional and not configured on this machine'; fi
 
 printf '\nDEVELOPMENT\n\n'
 missing_dev=()
@@ -88,6 +96,7 @@ else
   fail "Codex CLI $CODEX_CLI_VERSION unavailable"
 fi
 if "$ROOT/scripts/install-t3code.sh" check >/dev/null 2>&1; then ok "T3 Code $T3_CODE_VERSION verified"; else fail 'T3 Code asset missing or invalid'; fi
+if command -v chatgpt >/dev/null 2>&1; then info "ChatGPT desktop app present ($(rpm -q --qf '%{VERSION}-%{RELEASE}' chatgpt 2>/dev/null || echo unmanaged))"; else info 'ChatGPT desktop app is optional and not installed'; fi
 if codex login status >/dev/null 2>&1; then ok 'Codex authenticated'; else info 'Codex installed but interactive login is pending'; fi
 if [[ -e /dev/kvm && -r /dev/kvm && -w /dev/kvm ]]; then ok 'KVM available to the current user'; else info 'KVM unavailable; virt-manager can still use software emulation'; fi
 if command -v elixir >/dev/null 2>&1 && \
@@ -122,7 +131,7 @@ if [[ $nm_pid =~ ^[1-9][0-9]*$ ]]; then
 else
   printf '%-20s unavailable\n' 'NM event listener:'
 fi
-printf '%-20s disabled by project configuration\n' 'Animations:'
+printf '%-20s short, bounded UI transitions only\n' 'Animations:'
 if grep -RqiE 'while[[:space:]]+true|sleep[[:space:]]+0\.' "$ROOT/config" "$ROOT/scripts"; then
   printf '%-20s detected; inspect required\n' 'Periodic polling:'
 else

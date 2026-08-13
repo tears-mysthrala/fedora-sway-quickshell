@@ -1,0 +1,7 @@
+[Unit]
+Description=Optional development session sleep inhibitor
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/systemd-inhibit --what=idle:sleep --who=Development --why=Long-running development task --mode=block /usr/bin/sleep infinity
+Restart=on-failure

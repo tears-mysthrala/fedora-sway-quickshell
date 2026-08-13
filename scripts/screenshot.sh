@@ -12,5 +12,6 @@ case ${1:-} in
   output) grim "$file" ;;
   *) printf 'Usage: %s {region|output}\n' "$0" >&2; exit 2 ;;
 esac
+swappy -f "$file" -o "$file" || true
 wl-copy --type image/png <"$file"
-notify-send 'Screenshot saved' "$file" 2>/dev/null || true
+notify-send 'Captura guardada' "$file" 2>/dev/null || true

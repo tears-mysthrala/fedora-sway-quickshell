@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Cockpit
+GenericName=Administracion del sistema
+Comment=Gestionar el equipo, almacenamiento, Podman y maquinas virtuales
+Exec=zen --new-window https://localhost:9090
+Icon=utilities-system-monitor
+Terminal=false
+Categories=System;Settings;
+Keywords=server;system;podman;virtualization;storage;

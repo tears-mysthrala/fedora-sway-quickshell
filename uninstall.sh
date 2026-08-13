@@ -5,6 +5,7 @@ ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 PROJECT_ROOT=$ROOT
 source "$ROOT/scripts/lib/common.sh"
 
+systemctl --user disable --now fedora-sway-clipboard.service fedora-sway-wallpaper.timer 2>/dev/null || true
 systemctl --user disable --now fedora-sway-session.target 2>/dev/null || true
 
 manifest="$PROJECT_STATE_DIR/managed-links.tsv"
@@ -35,6 +36,11 @@ if "$ROOT/scripts/install-t3code.sh" check >/dev/null 2>&1; then
   fi
   rmdir -- "$(dirname -- "$t3_asset")" 2>/dev/null || true
   log INFO 'Removed verified project-owned T3 Code asset.'
+fi
+zen_dir=${XDG_DATA_HOME:-$HOME/.local/share}/$PROJECT_ID/zen
+if "$ROOT/scripts/install-zen.sh" check >/dev/null 2>&1; then
+  find "$zen_dir" -xdev -depth -delete
+  log INFO 'Removed verified project-owned Zen Browser payload.'
 fi
 codex_prefix=${XDG_DATA_HOME:-$HOME/.local/share}/$PROJECT_ID/codex
 if [[ -x $codex_prefix/bin/codex ]] && command -v npm >/dev/null 2>&1; then

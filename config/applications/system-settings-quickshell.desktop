@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Ajustes del sistema
+GenericName=Configuracion
+Comment=Configurar Sway, dispositivos, energia y administracion
+Exec=qs-ipc.sh call systemSettings toggle
+Icon=preferences-system
+Terminal=false
+Categories=Settings;System;
+Keywords=ajustes;configuracion;panel;settings;system;

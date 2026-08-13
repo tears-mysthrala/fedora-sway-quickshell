@@ -2,5 +2,5 @@
 vt = 1
 
 [default_session]
-command = "tuigreet --time --remember --remember-session --asterisks --sessions /usr/share/wayland-sessions"
+command = "sway --config /etc/greetd/raiju-sway.conf"
 user = "greetd"

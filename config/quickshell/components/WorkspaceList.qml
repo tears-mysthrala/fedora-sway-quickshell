@@ -3,22 +3,26 @@ import QtQuick.Layouts
 import Quickshell.I3
 
 RowLayout {
-    spacing: 6
+    spacing: 5
     Repeater {
         model: I3.workspaces
         delegate: Rectangle {
             required property var modelData
-            implicitWidth: 24
+            implicitWidth: modelData.focused ? 30 : 24
             implicitHeight: 24
-            radius: 3
-            color: modelData.focused ? "#7aa2f7" : (modelData.urgent ? "#f7768e" : "#24283b")
+            radius: 7
+            color: modelData.focused ? "#cba6f7" : (modelData.urgent ? "#f38ba8" : workspaceMouse.containsMouse ? "#45475a" : "#313244")
+            Behavior on implicitWidth { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+            Behavior on color { ColorAnimation { duration: 140 } }
             Text {
                 anchors.centerIn: parent
                 text: modelData.name
-                color: modelData.focused ? "#111318" : "#c0caf5"
+                color: modelData.focused ? "#1e1e2e" : "#cdd6f4"
+                font.family: "Cascadia Mono NF"
+                font.pixelSize: 12
+                font.weight: Font.DemiBold
             }
-            MouseArea { anchors.fill: parent; onClicked: modelData.activate() }
+            MouseArea { id: workspaceMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: modelData.activate() }
         }
     }
 }
-
