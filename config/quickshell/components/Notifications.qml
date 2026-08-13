@@ -22,7 +22,9 @@ PanelWindow {
             if (root.current) root.current.expire()
             notification.tracked = true
             root.current = notification
-            expiry.interval = notification.expireTimeout > 0 ? notification.expireTimeout * 1000 : 5000
+            // org.freedesktop.Notifications supplies this value in
+            // milliseconds; -1 asks the server to choose a default.
+            expiry.interval = notification.expireTimeout > 0 ? notification.expireTimeout : 5000
             expiry.restart()
         }
     }

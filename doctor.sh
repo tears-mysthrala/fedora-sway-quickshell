@@ -8,6 +8,16 @@ source "$ROOT/scripts/lib/common.sh"
 source "$ROOT/config/mkdl-toolchain.conf"
 failures=0
 
+# A doctor invocation over SSH is outside the graphical process tree, but the
+# user manager owns the authoritative environment imported by Sway.
+while IFS='=' read -r name value; do
+  case $name in
+    DISPLAY|WAYLAND_DISPLAY|SWAYSOCK|XDG_CURRENT_DESKTOP|XDG_RUNTIME_DIR|XDG_SESSION_DESKTOP|XDG_SESSION_TYPE)
+      declare -gx "$name=$value"
+      ;;
+  esac
+done < <(systemctl --user show-environment 2>/dev/null || true)
+
 ok() { printf '[OK] %s\n' "$1"; }
 info() { printf '[INFO] %s\n' "$1"; }
 warn() { printf '[WARN] %s\n' "$1"; }
@@ -16,7 +26,7 @@ active_user_unit() { systemctl --user is-active --quiet "$1" 2>/dev/null; }
 active_system_unit() { systemctl is-active --quiet "$1" 2>/dev/null; }
 has_user_bus_name() { busctl --user --list --no-pager 2>/dev/null | awk '{print $1}' | grep -Fqx "$1"; }
 
-printf 'Fedora Sway Demo Doctor\n\n'
+printf 'Fedora Sway Workstation %s Doctor\n\n' "$PROJECT_VERSION"
 if [[ -r /etc/os-release ]]; then
   source /etc/os-release
   if [[ ${ID:-} == fedora && ${VERSION_ID%%.*} == "$SUPPORTED_FEDORA_RELEASE" ]]; then ok "Fedora $VERSION_ID"; else fail "Fedora $SUPPORTED_FEDORA_RELEASE required; detected ${PRETTY_NAME:-unknown}"; fi
@@ -36,14 +46,34 @@ if active_user_unit wireplumber.service && pgrep -x wireplumber >/dev/null; then
 if active_system_unit polkit.service && pgrep -f '/usr/libexec/lxqt-policykit-agent' >/dev/null; then ok 'polkit service and independent agent active'; else fail 'polkit service or authentication agent inactive'; fi
 if active_user_unit fedora-sway-idle.service && pgrep -x swayidle >/dev/null; then ok 'swayidle service and process active'; else fail 'swayidle inactive'; fi
 if rpm -q swaylock >/dev/null 2>&1 && [[ -r $HOME/.config/swaylock/config ]]; then info 'swaylock installed/configured; functional lock requires interactive test'; else fail 'swaylock package/config unavailable'; fi
-if active_system_unit NetworkManager.service && nmcli -t -f STATE general status >/dev/null 2>&1; then ok 'NetworkManager service and API responsive'; else fail 'NetworkManager unavailable'; fi
+if active_system_unit NetworkManager.service && nmcli -t -f STATE general status >/dev/null 2>&1; then
+  network_snapshot=$("$ROOT/scripts/qs-ipc.sh" call network snapshot 2>/dev/null || true)
+  if [[ $network_snapshot =~ source=NetworkManager-events.*monitorPid=[1-9][0-9]* ]]; then
+    ok 'NetworkManager API and Quickshell event listener responsive'
+  else
+    fail 'NetworkManager works but the Quickshell event listener is unavailable'
+  fi
+else fail 'NetworkManager unavailable'; fi
 if busctl --system status org.freedesktop.UPower >/dev/null 2>&1; then
   if upower -e 2>/dev/null | grep -q battery; then ok 'UPower active; battery present'; else info 'UPower active; battery unavailable'; fi
 else info 'UPower unavailable'; fi
+if systemctl is-enabled --quiet greetd.service 2>/dev/null; then ok 'greetd login manager enabled'; else fail 'greetd login manager not enabled'; fi
+if active_system_unit tuned.service && tuned-adm active >/dev/null 2>&1 && \
+   busctl --system get-property net.hadess.PowerProfiles /net/hadess/PowerProfiles \
+     net.hadess.PowerProfiles ActiveProfile >/dev/null 2>&1; then
+  ok 'TuneD power profiles active on D-Bus'
+else
+  fail 'TuneD power profiles unavailable'
+fi
+if active_system_unit bluetooth.service; then
+  if busctl --system status org.bluez >/dev/null 2>&1; then ok 'BlueZ service and D-Bus API active'; else warn 'BlueZ active without observable D-Bus API'; fi
+else info 'Bluetooth service inactive'; fi
+if systemctl is-enabled --quiet cups.socket 2>/dev/null; then ok 'CUPS socket activation enabled'; else warn 'CUPS socket activation disabled'; fi
+if has_user_bus_name org.freedesktop.secrets; then ok 'Secret Service/keyring active'; else fail 'Secret Service/keyring unavailable'; fi
 
 printf '\nDEVELOPMENT\n\n'
 missing_dev=()
-for dev_command in git podman node python3 rustc cargo psql nvim rg shellcheck; do
+for dev_command in git gh podman docker node python3 rustc cargo psql nvim rg shellcheck mix codex t3code; do
   command -v "$dev_command" >/dev/null 2>&1 || missing_dev+=("$dev_command")
 done
 if (( ${#missing_dev[@]} == 0 )); then
@@ -57,12 +87,20 @@ if command -v codex >/dev/null 2>&1 && [[ $(codex --version 2>/dev/null) == "cod
 else
   fail "Codex CLI $CODEX_CLI_VERSION unavailable"
 fi
-if command -v elixir >/dev/null 2>&1; then
+if "$ROOT/scripts/install-t3code.sh" check >/dev/null 2>&1; then ok "T3 Code $T3_CODE_VERSION verified"; else fail 'T3 Code asset missing or invalid'; fi
+if codex login status >/dev/null 2>&1; then ok 'Codex authenticated'; else info 'Codex installed but interactive login is pending'; fi
+if [[ -e /dev/kvm && -r /dev/kvm && -w /dev/kvm ]]; then ok 'KVM available to the current user'; else info 'KVM unavailable; virt-manager can still use software emulation'; fi
+if command -v elixir >/dev/null 2>&1 && \
+   [[ $(readlink -f -- "$(command -v elixir)") == "$ROOT/scripts/mkdl-elixir.sh" ]]; then
+  if podman image exists "$MKDL_ELIXIR_IMAGE" 2>/dev/null; then
+    ok 'Digest-pinned MKDL Elixir OCI toolchain cached'
+  else
+    info 'MKDL Elixir wrapper ready; pinned image downloads on first use'
+  fi
+elif command -v elixir >/dev/null 2>&1; then
   warn 'Host Elixir present; verify it independently against the repository runtime floor'
-elif podman image exists "$MKDL_ELIXIR_IMAGE" 2>/dev/null; then
-  ok 'Digest-pinned MKDL Elixir OCI toolchain cached'
 else
-  info 'MKDL Elixir OCI toolchain not cached; mkdl-elixir.sh fetches it on first use'
+  fail 'MKDL Elixir wrapper unavailable'
 fi
 
 printf '\nPERFORMANCE\n\n'
@@ -76,8 +114,20 @@ for pair in 'Sway:sway' 'Quickshell:fedora-sway-quickshell.service'; do
   fi
   if [[ -n $pid ]]; then printf '%-20s %s KiB (measured RSS)\n' "$label RSS:" "$(ps -o rss= -p "$pid" | tr -d ' ')"; else printf '%-20s unavailable\n' "$label RSS:"; fi
 done
+qs_pid=$(systemctl --user show -p MainPID --value fedora-sway-quickshell.service 2>/dev/null || true)
+nm_pid=
+[[ $qs_pid =~ ^[1-9][0-9]*$ ]] && nm_pid=$(pgrep -P "$qs_pid" -x nmcli 2>/dev/null || true)
+if [[ $nm_pid =~ ^[1-9][0-9]*$ ]]; then
+  printf '%-20s %s KiB (measured RSS)\n' 'NM event listener:' "$(ps -o rss= -p "$nm_pid" | tr -d ' ')"
+else
+  printf '%-20s unavailable\n' 'NM event listener:'
+fi
 printf '%-20s disabled by project configuration\n' 'Animations:'
-if grep -RqiE 'while[[:space:]]+true|sleep[[:space:]]+0\.' "$ROOT/config" "$ROOT/scripts"; then printf '%-20s detected; inspect required\n' 'Periodic polling:'; else printf '%-20s none detected in project configuration\n' 'Periodic polling:'; fi
+if grep -RqiE 'while[[:space:]]+true|sleep[[:space:]]+0\.' "$ROOT/config" "$ROOT/scripts"; then
+  printf '%-20s detected; inspect required\n' 'Periodic polling:'
+else
+  printf '%-20s none; nmcli monitor is a blocking D-Bus event listener\n' 'Periodic polling:'
+fi
 printf '%-20s Sway IPC, PipeWire, NetworkManager, UPower, notifications\n' 'Event listeners:'
 
 exit "$failures"

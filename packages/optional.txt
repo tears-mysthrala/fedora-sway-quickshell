@@ -1,4 +1,0 @@
-# Hardware-dependent; install explicitly if the target needs Bluetooth.
-bluez
-bluez-tools
-

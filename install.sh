@@ -30,6 +30,10 @@ codex_binary=$codex_prefix/bin/codex
 declare -a missing=()
 for package in "${packages[@]}"; do
   if rpm -q "$package" >/dev/null 2>&1; then
+    mapfile -t installed_origins < <(dnf -q repoquery --installed --qf '%{from_repo}' "$package" | sed '/^[[:space:]]*$/d' | sort -u)
+    for origin in "${installed_origins[@]}"; do
+      is_allowed_repo "$origin" || die "Installed package $package came from unauthorized repository: $origin"
+    done
     log OK "$package already installed"
     continue
   fi
@@ -51,6 +55,8 @@ if [[ $MODE == check ]]; then
   [[ -x $codex_binary ]] || die 'Codex CLI is not installed by this project.'
   [[ $($codex_binary --version) == "codex-cli $CODEX_CLI_VERSION" ]] ||
     die "Codex CLI version does not match $CODEX_CLI_VERSION."
+  "$ROOT/scripts/install-t3code.sh" check
+  "$ROOT/scripts/system-setup.sh" check
   log OK 'Package and platform checks passed.'
   exit 0
 fi
@@ -58,6 +64,8 @@ fi
 if [[ $MODE == dry-run ]]; then
   log INFO "Would install: ${missing[*]:-(none)}"
   log INFO "Would install @openai/codex@$CODEX_CLI_VERSION under $codex_prefix"
+  "$ROOT/scripts/install-t3code.sh" dry-run
+  "$ROOT/scripts/system-setup.sh" dry-run
   for name in sway quickshell swayidle swaylock; do
     log INFO "Would manage ~/.config/$name"
   done
@@ -83,17 +91,28 @@ if [[ ! -x $codex_binary || $($codex_binary --version 2>/dev/null || true) != "c
     "@openai/codex@$CODEX_CLI_VERSION"
 fi
 
+"$ROOT/scripts/install-t3code.sh" install
+
 ensure_managed_link "$ROOT/config/sway" "$HOME/.config/sway"
 ensure_managed_link "$ROOT/config/quickshell" "$HOME/.config/quickshell"
 ensure_managed_link "$ROOT/config/swayidle" "$HOME/.config/swayidle"
 ensure_managed_link "$ROOT/config/swaylock" "$HOME/.config/swaylock"
 ensure_managed_link "$ROOT/config/environment.d/10-fedora-sway-demo.conf" "$HOME/.config/environment.d/10-fedora-sway-demo.conf"
+ensure_managed_link "$ROOT/config/xdg-desktop-portal/sway-portals.conf" "$HOME/.config/xdg-desktop-portal/sway-portals.conf"
 for unit in "$ROOT"/config/systemd/user/*; do
   ensure_managed_link "$unit" "$HOME/.config/systemd/user/$(basename "$unit")"
 done
 ensure_managed_link "$ROOT/scripts" "$HOME/.local/bin/fedora-sway-demo"
 ensure_managed_link "$codex_binary" "$HOME/.local/bin/codex"
+ensure_managed_link "$ROOT/scripts/t3code.sh" "$HOME/.local/bin/t3code"
+ensure_managed_link "$ROOT/config/applications/t3code.desktop" "$HOME/.local/share/applications/t3code.desktop"
+for beam_command in mix elixir iex; do
+  ensure_managed_link "$ROOT/scripts/mkdl-elixir.sh" "$HOME/.local/bin/$beam_command"
+done
+
+xdg-user-dirs-update
+sudo "$ROOT/scripts/system-setup.sh" install
 
 systemctl --user daemon-reload
 log OK 'Installation converged successfully.'
-log INFO 'Log out and start the packaged Sway session. A reboot is not required.'
+log INFO 'Reboot once to enter the greetd login on graphical.target; TTY recovery remains available.'

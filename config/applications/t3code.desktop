@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=T3 Code
+Comment=Control plane for local coding agents
+Exec=t3code %U
+Icon=applications-development
+Terminal=false
+Categories=Development;
+StartupNotify=true
+StartupWMClass=t3code

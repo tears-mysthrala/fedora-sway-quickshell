@@ -25,6 +25,17 @@ if [[ -f $manifest ]]; then
 fi
 
 systemctl --user daemon-reload
+sudo "$ROOT/scripts/system-setup.sh" uninstall
+if "$ROOT/scripts/install-t3code.sh" check >/dev/null 2>&1; then
+  t3_asset=${XDG_DATA_HOME:-$HOME/.local/share}/$PROJECT_ID/t3code/T3-Code-$T3_CODE_VERSION-x86_64.AppImage
+  unlink -- "$t3_asset"
+  t3_xdg_dir=$(dirname -- "$t3_asset")/xdg-data
+  if [[ -d $t3_xdg_dir ]]; then
+    find "$t3_xdg_dir" -xdev -depth -delete
+  fi
+  rmdir -- "$(dirname -- "$t3_asset")" 2>/dev/null || true
+  log INFO 'Removed verified project-owned T3 Code asset.'
+fi
 codex_prefix=${XDG_DATA_HOME:-$HOME/.local/share}/$PROJECT_ID/codex
 if [[ -x $codex_prefix/bin/codex ]] && command -v npm >/dev/null 2>&1; then
   npm uninstall --global --prefix "$codex_prefix" @openai/codex

@@ -1,0 +1,27 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Fedora Sway screen-share acceptance</title>
+<style>
+  body { background: #111318; color: #c0caf5; font: 20px sans-serif; margin: 4rem; }
+  button { font: inherit; padding: 1rem 2rem; }
+  video { display: block; margin-top: 2rem; max-width: 80vw; max-height: 60vh; }
+</style>
+<h1>Screen-share acceptance</h1>
+<button id="share" autofocus>Share a Sway output</button>
+<p id="status">Not started</p>
+<video id="preview" autoplay muted></video>
+<script>
+  const shareButton = document.getElementById("share");
+  const statusText = document.getElementById("status");
+  const preview = document.getElementById("preview");
+
+  shareButton.onclick = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+      preview.srcObject = stream;
+      statusText.textContent = `PASS: ${stream.getVideoTracks()[0].label || "screen stream active"}`;
+    } catch (error) {
+      statusText.textContent = `FAIL: ${error.name}: ${error.message}`;
+    }
+  };
+</script>

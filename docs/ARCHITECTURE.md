@@ -22,7 +22,18 @@ wlroots screenshot/screencast and PipeWire screen capture;
 and URI opening. The generic `xdg-desktop-portal` process is their D-Bus
 frontend.
 
-No project code changes repository configuration, SELinux policy, firewall
-state, privileged groups, or system authentication. The supported Fedora
-release is defined once in `config/project.conf`.
+Fedora greetd and its packaged PAM stack provide login and keyring startup.
+The repository supplies only the greetd session-selection configuration and
+backs up the Fedora file before replacing it. There is no autologin. TuneD,
+BlueZ, CUPS and Avahi remain ordinary Fedora services with socket/D-Bus
+activation where applicable.
 
+The only non-RPM application artifacts are Codex CLI and T3 Code. They are
+explicit development requirements, installed under a project-owned user data
+directory and pinned by registry integrity/SHA-256. They add no repository and
+never run as a daemon. T3 receives the Codex path explicitly and retains the
+Electron sandbox.
+
+No project code changes DNF repository configuration, SELinux policy,
+firewall state, PAM files or privileged groups. The supported Fedora release
+and application pins are defined once in `config/project.conf`.

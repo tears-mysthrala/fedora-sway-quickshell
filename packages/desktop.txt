@@ -13,4 +13,5 @@ wl-clipboard
 xdg-desktop-portal
 xdg-desktop-portal-gtk
 xdg-desktop-portal-wlr
+xdg-utils
 xorg-x11-server-Xwayland

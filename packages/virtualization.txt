@@ -1,0 +1,5 @@
+# QEMU/libvirt session-mode development; no privileged group membership.
+edk2-ovmf
+qemu-kvm
+swtpm
+virt-manager

@@ -21,7 +21,7 @@ proc_context_switches() {
 }
 
 desktop_processes() {
-  ps -u "$(id -u)" -o pid=,comm= | awk '$2 ~ /^(sway|swayidle|swaylock|qs|Xwayland|wireplumber|pipewire|lxqt-policykit-|xdg-desktop-)/'
+  ps -u "$(id -u)" -o pid=,comm= | awk '$2 ~ /^(sway|swayidle|swaylock|qs|nmcli|Xwayland|wireplumber|pipewire|lxqt-policykit-|xdg-desktop-)/'
 }
 
 memory_snapshot() {

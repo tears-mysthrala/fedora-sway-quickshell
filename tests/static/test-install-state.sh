@@ -24,6 +24,17 @@ ensure_managed_link "$TEST_ROOT/repo/config" "$HOME/.config/demo"
 mapfile -t backups_after < <(find "$PROJECT_STATE_DIR/backups" -type f)
 (( ${#backups_after[@]} == 1 ))
 
+generated="$HOME/.config/generated"
+ensure_managed_link "$TEST_ROOT/repo/config" "$generated"
+unlink "$generated"
+printf 'application-generated\n' >"$generated"
+ensure_managed_link "$TEST_ROOT/repo/config" "$generated"
+[[ $(awk -F '\t' -v destination="$generated" '$2 == destination {count++} END {print count+0}' \
+  "$PROJECT_STATE_DIR/managed-links.tsv") == 1 ]]
+generated_backup=$(awk -F '\t' -v destination="$generated" '$2 == destination {print $3}' \
+  "$PROJECT_STATE_DIR/managed-links.tsv")
+grep -qx application-generated "$generated_backup"
+
 record_installed_package sway
 record_installed_package sway
 [[ $(grep -cx sway "$PROJECT_STATE_DIR/installed-packages.txt") == 1 ]]

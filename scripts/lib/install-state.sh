@@ -10,7 +10,7 @@ path_token() {
 }
 
 ensure_managed_link() {
-  local source=$1 destination=$2 backup token
+  local source=$1 destination=$2 backup token manifest_tmp
   init_state
   mkdir -p "$(dirname -- "$destination")"
 
@@ -30,13 +30,18 @@ ensure_managed_link() {
   fi
 
   ln -s -- "$source" "$destination"
-  if ! grep -Fqx "$source"$'\t'"$destination"$'\t'"$backup" "$PROJECT_STATE_DIR/managed-links.tsv"; then
-    printf '%s\t%s\t%s\n' "$source" "$destination" "$backup" >>"$PROJECT_STATE_DIR/managed-links.tsv"
-  fi
+  # One authoritative row per destination. This matters when an application
+  # replaces a managed link and a later install backs that generated file up.
+  # Keeping the old blank-backup row would make uninstall remove the link
+  # before it reached the row that can restore the backup.
+  manifest_tmp=$(mktemp "$PROJECT_STATE_DIR/managed-links.XXXXXX")
+  awk -F '\t' -v destination="$destination" '$2 != destination' \
+    "$PROJECT_STATE_DIR/managed-links.tsv" >"$manifest_tmp"
+  printf '%s\t%s\t%s\n' "$source" "$destination" "$backup" >>"$manifest_tmp"
+  mv -- "$manifest_tmp" "$PROJECT_STATE_DIR/managed-links.tsv"
 }
 
 record_installed_package() {
   init_state
   grep -Fqx "$1" "$PROJECT_STATE_DIR/installed-packages.txt" || printf '%s\n' "$1" >>"$PROJECT_STATE_DIR/installed-packages.txt"
 }
-

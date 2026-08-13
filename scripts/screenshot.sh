@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
-directory=${XDG_PICTURES_DIR:-$HOME/Pictures}/Screenshots
+pictures=${XDG_PICTURES_DIR:-}
+if [[ -z $pictures ]] && command -v xdg-user-dir >/dev/null 2>&1; then
+  pictures=$(xdg-user-dir PICTURES)
+fi
+directory=${pictures:-$HOME/Pictures}/Screenshots
 mkdir -p "$directory"
 file="$directory/$(date +%Y-%m-%d_%H-%M-%S).png"
 case ${1:-} in

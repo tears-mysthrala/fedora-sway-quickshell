@@ -2,7 +2,7 @@ set $mod Mod4
 set $term alacritty
 set $scripts $HOME/.local/bin/fedora-sway-demo
 
-font pango:sans 10
+font pango:JetBrains Mono 10
 focus_follows_mouse no
 default_border pixel 1
 default_floating_border pixel 1
@@ -11,23 +11,48 @@ gaps outer 0
 
 output * bg #111318 solid_color
 
+input type:keyboard {
+    xkb_layout es
+    xkb_options compose:caps
+}
+
+input type:touchpad {
+    tap enabled
+    natural_scroll enabled
+    dwt enabled
+}
+
 exec_always systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
 exec_always dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP=sway
 exec_always systemctl --user start fedora-sway-session.target
 
 bindsym $mod+Return exec $term
 bindsym $mod+d exec $scripts/qs-ipc.sh call launcher toggle
+bindsym $mod+a exec t3code
+bindsym $mod+b exec firefox
+bindsym $mod+e exec thunar
+bindsym $mod+n exec $term -e nvim
+bindsym $mod+w kill
 bindsym $mod+Shift+q kill
 bindsym $mod+f fullscreen toggle
 bindsym $mod+Shift+space floating toggle
 bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r exec systemctl --user restart fedora-sway-quickshell.service
+bindsym $mod+Shift+e exec swaynag -t warning -m 'Log out of Sway?' -b 'Log out' 'swaymsg exit'
 bindsym $mod+Shift+x exec swaylock
+bindsym $mod+Ctrl+l exec swaylock
+bindsym $mod+Ctrl+a exec pavucontrol
+bindsym $mod+Ctrl+b exec blueman-manager
+bindsym $mod+Ctrl+w exec nm-connection-editor
 
 bindsym $mod+h focus left
 bindsym $mod+j focus down
 bindsym $mod+k focus up
 bindsym $mod+l focus right
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
 
 set $ws1 "1"
 set $ws2 "2"
@@ -38,6 +63,7 @@ set $ws6 "6"
 set $ws7 "7"
 set $ws8 "8"
 set $ws9 "9"
+set $ws10 "10"
 bindsym $mod+1 workspace number 1
 bindsym $mod+2 workspace number 2
 bindsym $mod+3 workspace number 3
@@ -47,6 +73,9 @@ bindsym $mod+6 workspace number 6
 bindsym $mod+7 workspace number 7
 bindsym $mod+8 workspace number 8
 bindsym $mod+9 workspace number 9
+bindsym $mod+0 workspace number 10
+bindsym $mod+Tab workspace next_on_output
+bindsym $mod+Shift+Tab workspace prev_on_output
 bindsym $mod+Shift+1 move container to workspace number 1
 bindsym $mod+Shift+2 move container to workspace number 2
 bindsym $mod+Shift+3 move container to workspace number 3
@@ -56,12 +85,17 @@ bindsym $mod+Shift+6 move container to workspace number 6
 bindsym $mod+Shift+7 move container to workspace number 7
 bindsym $mod+Shift+8 move container to workspace number 8
 bindsym $mod+Shift+9 move container to workspace number 9
+bindsym $mod+Shift+0 move container to workspace number 10
 
 bindsym Print exec $scripts/screenshot.sh region
 bindsym Shift+Print exec $scripts/screenshot.sh output
 bindsym XF86AudioRaiseVolume exec $scripts/volume.sh up
 bindsym XF86AudioLowerVolume exec $scripts/volume.sh down
 bindsym XF86AudioMute exec $scripts/volume.sh mute
+bindsym XF86AudioMicMute exec $scripts/volume.sh micmute
+bindsym XF86AudioPlay exec playerctl play-pause
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
 bindsym XF86MonBrightnessUp exec $scripts/brightness.sh up
 bindsym XF86MonBrightnessDown exec $scripts/brightness.sh down
 

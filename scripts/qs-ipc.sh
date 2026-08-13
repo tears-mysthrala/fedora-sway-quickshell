@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Quickshell 0.2.1 on Fedora scopes the IPC client differently when this
-# display variable is present. The shell process keeps its Wayland environment;
-# only this short-lived control client drops it.
-exec env -u WAYLAND_DISPLAY qs ipc "$@"
+# Systemd services can launch before a calling terminal has inherited the same
+# display identity. IPC is already restricted to this Unix user; selecting its
+# instance across displays also makes diagnostics over SSH deterministic.
+exec qs ipc --any-display "$@"

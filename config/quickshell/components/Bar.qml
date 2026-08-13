@@ -11,15 +11,21 @@ PanelWindow {
     color: "#111318"
     exclusiveZone: implicitHeight
     property string activeTitle: ""
+    property int activeContainerId: -1
 
     I3IpcListener {
         subscriptions: ["window"]
         onIpcEvent: event => {
             const payload = JSON.parse(event.data)
-            if (payload.change === "focus" && payload.container)
+            if (payload.change === "focus" && payload.container) {
+                root.activeContainerId = payload.container.id
                 root.activeTitle = payload.container.name || payload.container.app_id || ""
-            else if (payload.change === "title" && payload.container && payload.container.focused)
+            } else if (payload.change === "title" && payload.container && payload.container.focused) {
                 root.activeTitle = payload.container.name || ""
+            } else if (payload.change === "close" && payload.container && payload.container.id === root.activeContainerId) {
+                root.activeContainerId = -1
+                root.activeTitle = ""
+            }
         }
     }
 
