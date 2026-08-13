@@ -76,7 +76,7 @@ the machine untouched for two ten-minute measurement intervals.
 
 The default install includes the small native development surface used by MKDL:
 Git/LFS, rootless Podman and Compose tooling, C/C++, Rust, Python, PostgreSQL
-client tools, Node 22 (without npm), Neovim, ripgrep and ShellCheck.
+client tools, Node 22, Neovim, ripgrep, ShellCheck and Codex CLI.
 
 Do not install Fedora 44's native `elixir` RPM for Kurogane Hub: it is older
 than the repository's runtime floor. Use the digest-pinned CI-compatible
@@ -91,6 +91,22 @@ cd ~/Work/kurogane-hub
 The first invocation downloads the pinned OCI image. It runs rootless, mounts
 the current working directory plus a dedicated tool cache, and leaves no
 Elixir service resident.
+
+### Codex CLI
+
+OpenAI currently publishes its new desktop application for macOS and Windows,
+not Linux. The demo therefore installs the officially supported Linux Codex
+CLI. npm is retained solely as its official distribution mechanism; the
+installer puts Codex in a project-owned user prefix and pins its version in
+`config/project.conf`.
+
+After installation, authenticate interactively without putting credentials in
+this repository:
+
+```bash
+codex login
+codex --version
+```
 
 ## Removal
 

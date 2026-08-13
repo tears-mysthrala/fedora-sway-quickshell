@@ -28,14 +28,16 @@ transitive RPM dependencies are intentionally omitted.
 | `gcc`, `gcc-c++`, `make`, `cmake`, `openssl-devel` | Native compilation surface for BEAM NIFs and other project dependencies. | Installing compilers only after a dependency fails makes setup non-reproducible. |
 | `podman`, `podman-compose`, `buildah`, `skopeo` | Rootless OCI development, Compose-compatible labs, image building and inspection. | Docker would require a third-party repository and a privileged daemon. |
 | `postgresql` | PostgreSQL client tools used by Kurogane development and diagnostics. | The server is deliberately not enabled or initialized by the workstation installer. |
-| `nodejs22`, `nodejs22-bin` | Governed JavaScript tests requiring `node`; the unversioned binary package exposes `node`. | npm is intentionally omitted because Kurogane's supply-chain policy prohibits its normal dependency path. |
+| `nodejs22`, `nodejs22-bin`, `nodejs22-npm` | Governed JavaScript tests require `node`; npm is retained only as OpenAI's official Codex CLI distribution mechanism. | Kurogane application dependencies still must not use npm. |
+| `@openai/codex` | Official Linux coding agent used to inspect and refine this repository from inside the target VM. Installed in a project-owned user prefix; version and registry SHA-512 integrity are pinned. | The new ChatGPT desktop app is not currently published for Linux. |
 | `python3`, `python3-devel`, `python3-pip` | Existing repository checks and native Python extension builds. | Fedora's system Python remains authoritative; pip is not invoked by the installer. |
 | `rust`, `cargo` | Rust/NIF development and auditing. | The Fedora toolchain is sufficient for the workstation baseline. |
 | `neovim`, `ripgrep`, `ShellCheck` | Editor, fast code search, and shell validation. | They cover the common terminal workflow without installing an IDE ecosystem. |
 
 The installer disables weak dependencies for its DNF transaction. This avoids
-implicitly adding npm, offline Node documentation, full locale data and
-cross-architecture emulators; users may install any of them explicitly.
+offline Node documentation, full locale data and cross-architecture emulators.
+npm is explicit because Codex officially uses it; it is not used for Kurogane
+application dependencies.
 
 ### Elixir and Erlang
 

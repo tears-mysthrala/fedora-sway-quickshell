@@ -11,6 +11,7 @@ make
 neovim
 nodejs22
 nodejs22-bin
+nodejs22-npm
 openssl-devel
 podman
 podman-compose

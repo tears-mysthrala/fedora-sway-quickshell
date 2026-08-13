@@ -21,7 +21,7 @@ done
 for required in alacritty firefox Thunar mousepad pavucontrol imv; do
   grep -qx "$required" <<<"$packages"
 done
-for required in podman git git-lfs gcc postgresql nodejs22 python3 rust cargo neovim; do
+for required in podman git git-lfs gcc postgresql nodejs22 nodejs22-npm python3 rust cargo neovim; do
   grep -qx "$required" <<<"$packages"
 done
 ! grep -qx foot <<<"$packages"
@@ -32,6 +32,11 @@ grep -Fq 'docker.io/hexpm/elixir:1.20.1-erlang-29.0.2' \
 grep -Fq '@sha256:' "$ROOT/config/mkdl-toolchain.conf"
 grep -Fq -- '--userns=keep-id' "$ROOT/scripts/mkdl-elixir.sh"
 grep -Fq -- ':/workspace:Z' "$ROOT/scripts/mkdl-elixir.sh"
+grep -Eq '^CODEX_CLI_VERSION=[0-9]+\.[0-9]+\.[0-9]+$' "$ROOT/config/project.conf"
+grep -Eq "^CODEX_CLI_INTEGRITY='sha512-[A-Za-z0-9+/]+=*'$" "$ROOT/config/project.conf"
+grep -Fq 'npm install --global --prefix "$codex_prefix"' "$ROOT/install.sh"
+grep -Fq 'codex_integrity=$(npm view' "$ROOT/install.sh"
+grep -Fq 'ensure_managed_link "$codex_binary" "$HOME/.local/bin/codex"' "$ROOT/install.sh"
 
 source "$ROOT/scripts/lib/common.sh"
 required_packages=$(sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' \

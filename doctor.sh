@@ -51,7 +51,12 @@ if (( ${#missing_dev[@]} == 0 )); then
 else
   fail "MKDL development commands missing: ${missing_dev[*]}"
 fi
-if command -v npm >/dev/null 2>&1; then warn 'npm present (not installed or required by this project)'; else info 'npm absent by design'; fi
+if command -v npm >/dev/null 2>&1; then info 'npm available for the pinned Codex CLI installer'; else fail 'npm unavailable for Codex CLI maintenance'; fi
+if command -v codex >/dev/null 2>&1 && [[ $(codex --version 2>/dev/null) == "codex-cli $CODEX_CLI_VERSION" ]]; then
+  ok "Codex CLI $CODEX_CLI_VERSION available"
+else
+  fail "Codex CLI $CODEX_CLI_VERSION unavailable"
+fi
 if command -v elixir >/dev/null 2>&1; then
   warn 'Host Elixir present; verify it independently against the repository runtime floor'
 elif podman image exists "$MKDL_ELIXIR_IMAGE" 2>/dev/null; then

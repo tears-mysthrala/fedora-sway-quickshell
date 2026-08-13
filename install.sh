@@ -25,6 +25,8 @@ log INFO "Checking Fedora $SUPPORTED_FEDORA_RELEASE repository metadata"
 dnf -q makecache >/dev/null || die 'DNF metadata/connectivity check failed.'
 
 mapfile -t packages < <(load_packages)
+codex_prefix=${XDG_DATA_HOME:-$HOME/.local/share}/$PROJECT_ID/codex
+codex_binary=$codex_prefix/bin/codex
 declare -a missing=()
 for package in "${packages[@]}"; do
   if rpm -q "$package" >/dev/null 2>&1; then
@@ -46,12 +48,16 @@ done
 
 if [[ $MODE == check ]]; then
   (( ${#missing[@]} == 0 )) || die "Missing packages: ${missing[*]}"
+  [[ -x $codex_binary ]] || die 'Codex CLI is not installed by this project.'
+  [[ $($codex_binary --version) == "codex-cli $CODEX_CLI_VERSION" ]] ||
+    die "Codex CLI version does not match $CODEX_CLI_VERSION."
   log OK 'Package and platform checks passed.'
   exit 0
 fi
 
 if [[ $MODE == dry-run ]]; then
   log INFO "Would install: ${missing[*]:-(none)}"
+  log INFO "Would install @openai/codex@$CODEX_CLI_VERSION under $codex_prefix"
   for name in sway quickshell swayidle swaylock; do
     log INFO "Would manage ~/.config/$name"
   done
@@ -68,6 +74,15 @@ if (( ${#missing[@]} > 0 )); then
   for package in "${missing[@]}"; do record_installed_package "$package"; done
 fi
 
+if [[ ! -x $codex_binary || $($codex_binary --version 2>/dev/null || true) != "codex-cli $CODEX_CLI_VERSION" ]]; then
+  codex_integrity=$(npm view "@openai/codex@$CODEX_CLI_VERSION" dist.integrity)
+  [[ $codex_integrity == "$CODEX_CLI_INTEGRITY" ]] ||
+    die "Codex CLI registry integrity mismatch for $CODEX_CLI_VERSION."
+  log INFO "Installing @openai/codex@$CODEX_CLI_VERSION into the project-owned user prefix"
+  npm install --global --prefix "$codex_prefix" --ignore-scripts --no-audit --no-fund \
+    "@openai/codex@$CODEX_CLI_VERSION"
+fi
+
 ensure_managed_link "$ROOT/config/sway" "$HOME/.config/sway"
 ensure_managed_link "$ROOT/config/quickshell" "$HOME/.config/quickshell"
 ensure_managed_link "$ROOT/config/swayidle" "$HOME/.config/swayidle"
@@ -77,6 +92,7 @@ for unit in "$ROOT"/config/systemd/user/*; do
   ensure_managed_link "$unit" "$HOME/.config/systemd/user/$(basename "$unit")"
 done
 ensure_managed_link "$ROOT/scripts" "$HOME/.local/bin/fedora-sway-demo"
+ensure_managed_link "$codex_binary" "$HOME/.local/bin/codex"
 
 systemctl --user daemon-reload
 log OK 'Installation converged successfully.'

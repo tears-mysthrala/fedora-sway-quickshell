@@ -25,6 +25,11 @@ if [[ -f $manifest ]]; then
 fi
 
 systemctl --user daemon-reload
+codex_prefix=${XDG_DATA_HOME:-$HOME/.local/share}/$PROJECT_ID/codex
+if [[ -x $codex_prefix/bin/codex ]] && command -v npm >/dev/null 2>&1; then
+  npm uninstall --global --prefix "$codex_prefix" @openai/codex
+  log INFO "Removed project-owned Codex CLI payload from $codex_prefix"
+fi
 if [[ -s $PROJECT_STATE_DIR/installed-packages.txt ]]; then
   log INFO 'Packages installed by the demo (not removed):'
   sed 's/^/  /' "$PROJECT_STATE_DIR/installed-packages.txt"
