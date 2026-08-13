@@ -8,6 +8,27 @@ The v0.1 priority is performance and laptop efficiency. It configures no
 animations, visual effects, recurring subprocess polling, external package
 repositories, autologin, SELinux changes, or firewall changes.
 
+## Observed Fedora 44 VM
+
+These images are direct `grim` captures from the Fedora Server 44 acceptance
+VM, using the configuration in this repository.
+
+### Desktop and bar
+
+![Minimal Sway desktop with Quickshell bar](docs/screenshots/01-desktop.png)
+
+### Launcher
+
+![Keyboard-driven Quickshell application launcher](docs/screenshots/02-launcher.png)
+
+### Notification popup
+
+![Immediate notification popup without animation](docs/screenshots/03-notification.png)
+
+### Brightness OSD
+
+![One-shot brightness OSD](docs/screenshots/04-osd.png)
+
 ## From a clean Fedora Server 44 installation
 
 ```bash
@@ -57,4 +78,3 @@ and lists packages added by the demo. It never removes shared packages.
 See [architecture](docs/ARCHITECTURE.md), [dependencies](docs/DEPENDENCIES.md),
 [performance](docs/PERFORMANCE.md), and
 [troubleshooting](docs/TROUBLESHOOTING.md).
-
