@@ -61,6 +61,11 @@ exec dbus-run-session sway
 The default terminal binding is `Super+Enter`; the launcher is `Super+D`.
 `Super+Shift+R` restarts Quickshell without restarting Sway.
 
+Inside a Wayland VM viewer, the host compositor may consume `Super` and other
+modifier combinations. The demo also provides `F9` for the terminal, `F10` for
+the launcher, `F11` to restart Quickshell, and `F12` to lock. Click once inside
+the display to focus it; virt-manager's default release chord is `Ctrl+Alt`.
+
 Run `./doctor.sh` inside the graphical session. It distinguishes installed
 software from active processes, services, D-Bus integration, and checks that
 require manual interaction. Run `./benchmark.sh ab` only when ready to leave

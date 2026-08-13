@@ -8,6 +8,9 @@ grep -Fq 'set $term foot' "$config"
 for binding in 'exec $term' 'kill' 'fullscreen toggle' 'floating toggle' 'workspace number 1' 'move container to workspace number 1' 'swaylock'; do
   grep -Fq "$binding" "$config"
 done
+for binding in 'F9 exec $term' 'F10 exec $scripts/qs-ipc.sh' 'F11 exec systemctl' 'F12 exec swaylock'; do
+  grep -Fq "$binding" "$config"
+done
 grep -Fq 'fedora-sway-session.target' "$config"
 grep -Fq 'title="Applications"' "$config"
 grep -Fq 'Wants=pipewire.service wireplumber.service' "$ROOT/config/systemd/user/fedora-sway-session.target"

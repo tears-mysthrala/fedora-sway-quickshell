@@ -24,6 +24,14 @@ bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r exec systemctl --user restart fedora-sway-quickshell.service
 bindsym $mod+Shift+x exec swaylock
 
+# Viewer-friendly alternatives: Wayland hosts may consume Super/modifier
+# combinations before a VM viewer can forward them. These do not replace the
+# normal laptop bindings.
+bindsym F9 exec $term
+bindsym F10 exec $scripts/qs-ipc.sh call launcher toggle
+bindsym F11 exec systemctl --user restart fedora-sway-quickshell.service
+bindsym F12 exec swaylock
+
 bindsym $mod+h focus left
 bindsym $mod+j focus down
 bindsym $mod+k focus up
