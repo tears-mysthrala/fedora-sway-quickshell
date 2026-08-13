@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Swappy
+GenericName=Herramienta de anotacion
+Comment=Editar y anotar capturas de pantalla
+TryExec=swappy
+Exec=swappy -f %f
+Icon=swappy
+Terminal=false
+NoDisplay=true
+Categories=Utility;Graphics;
+MimeType=image/png;image/jpeg;

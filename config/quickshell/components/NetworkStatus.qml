@@ -1,11 +1,18 @@
 import QtQuick
 import Quickshell.Io
 
-Text {
+Rectangle {
     id: root
+    signal activated()
     property bool connected: false
-    text: connected ? "online" : "offline"
-    color: connected ? "#9ece6a" : "#f7768e"
+    implicitWidth: label.implicitWidth + 14
+    implicitHeight: 28
+    radius: 8
+    color: mouse.containsMouse ? "#45475a" : "transparent"
+    Behavior on color { ColorAnimation { duration: 200 } }
+    Text { id: label; anchors.centerIn: parent; text: root.connected ? "󰤨  online" : "󰤭  offline"; color: root.connected ? "#a6e3a1" : "#f38ba8"; font.family: "Cascadia Mono NF"; font.pixelSize: 13 }
+    Process { id: editor; command: ["nm-connection-editor"] }
+    MouseArea { id: mouse; anchors.fill: parent; hoverEnabled: true; acceptedButtons: Qt.LeftButton | Qt.RightButton; cursorShape: Qt.PointingHandCursor; onClicked: event => { if (event.button === Qt.RightButton) editor.running = true; else root.activated() } }
 
     function refresh(): void {
         if (!query.running)
@@ -39,7 +46,7 @@ Text {
     IpcHandler {
         target: "network"
         function snapshot(): string {
-            return "source=NetworkManager-events;monitorPid=" + monitor.processId + ";connected=" + root.connected + ";label=" + root.text
+            return "source=NetworkManager-events;monitorPid=" + monitor.processId + ";connected=" + root.connected + ";label=" + label.text
         }
     }
 }

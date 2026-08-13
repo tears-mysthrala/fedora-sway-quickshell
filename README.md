@@ -4,11 +4,12 @@ A small, auditable personal development layer for Fedora Server 44. Fedora remai
 charge of the operating system; this repository adds Sway, an event-driven
 Quickshell UI, independent idle/lock/polkit processes, and validation tools.
 
-Version 1.0 prioritizes performance and laptop efficiency. It configures no
-animations, visual effects, recurring subprocess polling, external package
-repositories, autologin, SELinux changes, firewall changes or privileged group
-membership. T3 Code and Codex are explicit, pinned application artifacts; they
-do not add a DNF repository.
+Version 1.1 captures the complete daily setup: an interactive Quickshell bar,
+clipboard history, system settings, short bounded transitions, rotating Raiju
+wallpapers, a themed GTK greet, dark GTK/Qt defaults and practical floating
+window rules. It does not enable autologin, weaken SELinux/firewalld or grant
+privileged group membership. Zen, T3 Code and Codex are explicit pinned
+artifacts and do not add DNF repositories.
 
 ## Observed Fedora 44 VM
 
@@ -18,7 +19,7 @@ captures from inside the Sway session.
 
 ### Login
 
-![greetd and tuigreet login without autologin](docs/screenshots/00-login.png)
+![greetd login without autologin](docs/screenshots/00-login.png)
 
 ### Desktop and bar
 
@@ -71,7 +72,9 @@ the packaged **Sway** session and never performs autologin. TTY recovery remains
 exec dbus-run-session sway
 ```
 
-The default terminal binding is `Super+Enter`; the launcher is `Super+D`.
+The default terminal binding is `Super+Enter`; the launcher is `Super+D`, Zen
+is `Super+B`, T3 Code is `Super+A`, Neovim is `Super+N`, and clipboard history
+is `Super+V`.
 `Super+Shift+R` restarts Quickshell without restarting Sway, and
 `Super+Shift+E` opens a confirmation before logging out.
 
@@ -120,14 +123,19 @@ The VM confirms that anonymous access is rejected and that the wrapper stops
 with this instruction instead of silently substituting the smaller generic
 image. Registry credentials are never copied by this repository.
 
-### Codex CLI
+### Zen, Codex CLI and T3 Code
 
-OpenAI now publishes a Fedora-compatible ChatGPT Linux preview, but its RPM
-enables OpenAI's package repository. Version 1.0 does not add that external
-repository because the requested local development path is already covered by
-Codex CLI plus T3 Code. npm is retained solely for the pinned Codex artifact;
-the installer puts it in a project-owned user prefix and records its registry
-integrity in `config/project.conf`.
+Zen is installed from its official release tarball with a pinned SHA-256. npm
+is retained solely for the pinned Codex artifact; the installer puts both
+payloads below a project-owned user data directory. T3 Code is likewise a
+pinned official AppImage. Authentication and personal profiles are never put
+in this repository.
+
+The native ChatGPT RPM is intentionally not mirrored in this repository.
+Follow OpenAI's official [ChatGPT desktop app for Linux guide](https://learn.chatgpt.com/docs/linux/linux-app)
+to select the current Fedora package for the machine architecture, install it
+and keep it updated through OpenAI's signed package repository. `doctor.sh`
+detects the app, while the desktop remains fully usable without it.
 
 After installation, authenticate interactively without putting credentials in
 this repository:
@@ -143,6 +151,14 @@ Launch it from `Apps`, with `Super+A`, or from a terminal:
 ```bash
 t3code
 ```
+
+## Machine-specific storage
+
+The doctor reports whether an optional `/develop` mount is healthy, but the
+installer deliberately does not copy a disk UUID, resize LVM or format a disk.
+Those operations are hardware-specific. Configure the mount once with Cockpit
+or `/etc/fstab`; keep source code and replaceable build data there, and keep
+credentials and irreplaceable data backed up separately.
 
 ## Removal
 

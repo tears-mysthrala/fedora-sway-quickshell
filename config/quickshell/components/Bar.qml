@@ -6,9 +6,12 @@ import Quickshell.I3
 PanelWindow {
     id: root
     signal launcherRequested()
+    signal quickSettingsRequested(string section)
+    signal notificationsRequested()
+    signal systemSettingsRequested()
     anchors { top: true; left: true; right: true }
-    implicitHeight: 34
-    color: "#111318"
+    implicitHeight: 40
+    color: "#1e1e2e"
     exclusiveZone: implicitHeight
     property string activeTitle: ""
     property int activeContainerId: -1
@@ -31,28 +34,41 @@ PanelWindow {
 
     RowLayout {
         anchors.fill: parent
-        anchors.leftMargin: 12
-        anchors.rightMargin: 12
-        spacing: 12
+        anchors.leftMargin: 10
+        anchors.rightMargin: 14
+        spacing: 14
         Rectangle {
-            implicitWidth: appsText.implicitWidth + 14
-            implicitHeight: 24
-            radius: 3
-            color: "#24283b"
-            Text { id: appsText; anchors.centerIn: parent; text: "Apps"; color: "#c0caf5" }
-            MouseArea { anchors.fill: parent; onClicked: root.launcherRequested() }
+            implicitWidth: appsText.implicitWidth + 20
+            implicitHeight: 28
+            radius: 8
+            color: appsMouse.containsMouse ? "#45475a" : "#313244"
+            Behavior on color { ColorAnimation { duration: 140 } }
+            Text { id: appsText; anchors.centerIn: parent; text: "󰀻  Apps"; color: "#cdd6f4"; font.family: "Cascadia Mono NF"; font.pixelSize: 13; font.weight: Font.DemiBold }
+            MouseArea { id: appsMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.launcherRequested() }
         }
         WorkspaceList {}
         Text {
             Layout.fillWidth: true
             text: root.activeTitle
-            color: "#a9b1d6"
+            color: "#a6adc8"
             elide: Text.ElideRight
             horizontalAlignment: Text.AlignHCenter
+            font.family: "Cascadia Mono NF"
+            font.pixelSize: 12
         }
-        NetworkStatus {}
-        AudioStatus {}
-        BatteryStatus {}
-        Clock {}
+        MediaStatus {}
+        SystemTrayStatus {}
+        PrivacyStatus {}
+        UtilitiesStatus { onActivated: root.systemSettingsRequested() }
+        MicrophoneStatus {}
+        Rectangle {
+            implicitWidth: 28; implicitHeight: 28; radius: 8; color: bellMouse.containsMouse ? "#45475a" : "transparent"
+            Text { anchors.centerIn: parent; text: "󰂚"; color: "#a6adc8"; font.family: "Cascadia Mono NF"; font.pixelSize: 12 }
+            MouseArea { id: bellMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.notificationsRequested() }
+        }
+        NetworkStatus { onActivated: root.quickSettingsRequested("network") }
+        AudioStatus { onActivated: root.quickSettingsRequested("audio") }
+        BatteryStatus { onActivated: root.quickSettingsRequested("battery") }
+        Clock { onActivated: root.quickSettingsRequested("clock") }
     }
 }

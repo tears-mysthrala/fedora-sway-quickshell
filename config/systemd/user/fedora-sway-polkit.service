@@ -4,6 +4,8 @@ PartOf=fedora-sway-session.target
 After=graphical-session.target pipewire.service wireplumber.service
 
 [Service]
+Environment=QT_QPA_PLATFORMTHEME=qt6ct
+Environment=QT_STYLE_OVERRIDE=Fusion
 ExecStart=/usr/libexec/lxqt-policykit-agent
 Restart=on-failure
 RestartSec=1

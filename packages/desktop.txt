@@ -1,15 +1,19 @@
 # Minimal Wayland workstation and selected tools.
 brightnessctl
 alacritty
+cliphist
 grim
 libnotify
 lxqt-policykit
+pipewire-utils
 quickshell
 slurp
 sway
 swayidle
 swaylock
+swappy
 wl-clipboard
+wtype
 xdg-desktop-portal
 xdg-desktop-portal-gtk
 xdg-desktop-portal-wlr

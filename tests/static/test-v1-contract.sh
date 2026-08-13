@@ -3,13 +3,17 @@ set -euo pipefail
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 
 source "$ROOT/config/project.conf"
-[[ ${PROJECT_VERSION:-} == 1.0.0 ]]
+[[ ${PROJECT_VERSION:-} == 1.1.0 ]]
 [[ ${T3_CODE_VERSION:-} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
 [[ ${T3_CODE_SHA256:-} =~ ^[a-f0-9]{64}$ ]]
+[[ ${ZEN_VERSION:-} =~ ^[0-9]+\.[0-9]+\.[0-9]+b$ ]]
+[[ ${ZEN_SHA256:-} =~ ^[a-f0-9]{64}$ ]]
 
 packages=$(sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' "$ROOT"/packages/*.txt)
-for required in greetd greetd-selinux tuigreet gnome-keyring gvfs udisks2 \
+for required in greetd greetd-selinux gtkgreet gnome-keyring gvfs udisks2 \
   nm-connection-editor blueman bluez tuned-ppd fwupd fuse jetbrains-mono-fonts \
+  cascadia-mono-nf-fonts cliphist swappy wtype qt6ct dnf5-plugin-automatic smartmontools \
+  cockpit cockpit-machines cockpit-podman cockpit-storaged \
   gh openssh-clients podman-docker qemu-kvm virt-manager wireguard-tools; do
   grep -qx "$required" <<<"$packages"
 done
@@ -18,16 +22,18 @@ grep -Fq 'xkb_layout es' "$ROOT/config/sway/config"
 grep -Fq 'xkb_options compose:caps' "$ROOT/config/sway/config"
 grep -Fq 'tap enabled' "$ROOT/config/sway/config"
 grep -Fq 'LIBVIRT_DEFAULT_URI=qemu:///session' "$ROOT/config/environment.d/10-fedora-sway-demo.conf"
-grep -Fq 'bindsym $mod+b exec firefox' "$ROOT/config/sway/config"
+grep -Fq 'bindsym $mod+b exec zen' "$ROOT/config/sway/config"
 grep -Fq 'bindsym $mod+e exec thunar' "$ROOT/config/sway/config"
 grep -Fq 'bindsym $mod+w kill' "$ROOT/config/sway/config"
 grep -Fq 'export T3CODE_DISABLE_AUTO_UPDATE=true' "$ROOT/scripts/t3code.sh"
 
 [[ -f $ROOT/config/greetd/config.toml ]]
-grep -Fq 'tuigreet' "$ROOT/config/greetd/config.toml"
-grep -Fq '/usr/share/wayland-sessions' "$ROOT/config/greetd/config.toml"
+grep -Fq 'raiju-sway.conf' "$ROOT/config/greetd/config.toml"
+grep -Fq 'gtkgreet' "$ROOT/config/greetd/raiju-sway.conf"
+[[ -f $ROOT/assets/backgrounds/raiju/raiju_guardian_under_crimson_lightning.png ]]
 [[ -f $ROOT/config/applications/t3code.desktop ]]
 [[ -x $ROOT/scripts/install-t3code.sh ]]
+[[ -x $ROOT/scripts/install-zen.sh ]]
 [[ -x $ROOT/scripts/t3code.sh ]]
 grep -Fq 'sha256sum --check' "$ROOT/scripts/install-t3code.sh"
 if grep -Fq -- '--no-sandbox' "$ROOT/scripts/t3code.sh"; then exit 1; fi

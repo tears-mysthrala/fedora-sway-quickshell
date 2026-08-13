@@ -1,0 +1,12 @@
+[Unit]
+Description=Rotate Sway wallpaper every 15 minutes
+PartOf=fedora-sway-session.target
+
+[Timer]
+OnBootSec=5s
+OnUnitActiveSec=15min
+AccuracySec=10s
+Unit=fedora-sway-wallpaper.service
+
+[Install]
+WantedBy=fedora-sway-session.target

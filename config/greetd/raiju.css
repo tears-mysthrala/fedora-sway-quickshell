@@ -1,0 +1,40 @@
+window,
+window.background {
+    background-color: transparent;
+    color: #cdd6f4;
+    font-family: "Cascadia Mono NF";
+}
+
+#body {
+    background-color: rgba(17, 17, 27, 0.92);
+    border: 1px solid #e64553;
+    border-radius: 16px;
+    padding: 44px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65);
+}
+
+entry,
+combobox button {
+    background: #313244;
+    color: #cdd6f4;
+    border: 1px solid #45475a;
+    border-radius: 9px;
+    padding: 10px;
+}
+
+entry:focus,
+combobox button:focus {
+    border-color: #e64553;
+}
+
+button {
+    background: #45475a;
+    color: #cdd6f4;
+    border-radius: 9px;
+    padding: 9px 16px;
+}
+
+button:hover {
+    background: #e64553;
+    color: #11111b;
+}
