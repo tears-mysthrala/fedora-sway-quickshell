@@ -1,6 +1,6 @@
 # Minimal Wayland workstation and selected tools.
 brightnessctl
-foot
+alacritty
 grim
 libnotify
 lxqt-policykit

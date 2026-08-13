@@ -5,6 +5,7 @@ import Quickshell.I3
 
 PanelWindow {
     id: root
+    signal launcherRequested()
     anchors { top: true; left: true; right: true }
     implicitHeight: 34
     color: "#111318"
@@ -27,6 +28,14 @@ PanelWindow {
         anchors.leftMargin: 12
         anchors.rightMargin: 12
         spacing: 12
+        Rectangle {
+            implicitWidth: appsText.implicitWidth + 14
+            implicitHeight: 24
+            radius: 3
+            color: "#24283b"
+            Text { id: appsText; anchors.centerIn: parent; text: "Apps"; color: "#c0caf5" }
+            MouseArea { anchors.fill: parent; onClicked: root.launcherRequested() }
+        }
         WorkspaceList {}
         Text {
             Layout.fillWidth: true
@@ -41,4 +50,3 @@ PanelWindow {
         Clock {}
     }
 }
-

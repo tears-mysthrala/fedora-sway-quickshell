@@ -15,11 +15,15 @@ transitive RPM dependencies are intentionally omitted.
 | `upower` | Event-driven power and battery state. | Direct sysfs polling would add custom hardware logic. |
 | `polkit`, `lxqt-policykit` | System authorization and an independent maintained graphical agent. | Quickshell's agent support is deliberately excluded from the critical path. |
 | `xorg-x11-server-Xwayland` | Compatibility for X11-only applications. | Pure Wayland cannot meet the XWayland acceptance criterion. |
-| `foot` | Small native Wayland terminal and recovery surface. | A heavier terminal brings no v0.1 advantage. |
+| `alacritty` | Conventional GPU-accelerated terminal and recovery surface, selected for a familiar single launcher entry. | Foot is smaller and Wayland-native but exposed confusing client/server launcher entries; Kitty and WezTerm add broader feature surfaces. |
 | `grim`, `slurp` | Wayland screenshot capture and region selection. | Portal screenshots alone are awkward for keybindings. |
 | `wl-clipboard` | Wayland clipboard CLI and screenshot-to-clipboard support. | Quickshell clipboard access requires focus and is unsuitable as the general clipboard mechanism. |
 | `brightnessctl` | Bounded backlight adjustment when supported by hardware. | Direct sysfs writes would require custom permission handling. |
 | `libnotify` | Supplies `notify-send` for testing and user feedback. | A bespoke D-Bus sender would be less readable. |
+| `firefox` | Normal browser workload and the primary interactive portal/screen-sharing test client. | A browser is required to validate workstation behavior; adding several would not improve v0.1. |
+| `Thunar`, `mousepad` | Lightweight conventional file manager and graphical text editor. | Larger desktop suites are outside scope. |
+| `pavucontrol` | Maintained graphical PipeWire/PulseAudio diagnostic and control surface. | The shell widget remains intentionally small and is not an audio routing UI. |
+| `imv` | Small Wayland-capable image viewer for screenshots and local images. | Browser-only viewing would weaken the basic offline application set. |
 
 BlueZ packages are optional because neither VMs nor all laptops expose a
 Bluetooth adapter.

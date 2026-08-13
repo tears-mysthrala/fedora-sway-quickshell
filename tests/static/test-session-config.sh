@@ -4,13 +4,11 @@ ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 
 config="$ROOT/config/sway/config"
 grep -Eq '^bar[[:space:]]*\{' "$config" && grep -Eq 'swaybar_command[[:space:]]+none' "$config"
-grep -Fq 'set $term foot' "$config"
+grep -Fq 'set $term alacritty' "$config"
 for binding in 'exec $term' 'kill' 'fullscreen toggle' 'floating toggle' 'workspace number 1' 'move container to workspace number 1' 'swaylock'; do
   grep -Fq "$binding" "$config"
 done
-for binding in 'F9 exec $term' 'F10 exec $scripts/qs-ipc.sh' 'F11 exec systemctl' 'F12 exec swaylock'; do
-  grep -Fq "$binding" "$config"
-done
+! grep -Eq '^bindsym F[0-9]+ ' "$config"
 grep -Fq 'fedora-sway-session.target' "$config"
 grep -Fq 'title="Applications"' "$config"
 grep -Fq 'Wants=pipewire.service wireplumber.service' "$ROOT/config/systemd/user/fedora-sway-session.target"

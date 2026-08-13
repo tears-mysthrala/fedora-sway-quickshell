@@ -14,6 +14,8 @@ grep -Fq 'import Quickshell.Networking' "$QML/components/NetworkStatus.qml"
 grep -Fq 'import Quickshell.Services.UPower' "$QML/components/BatteryStatus.qml"
 grep -Fq 'NotificationServer' "$QML/components/Notifications.qml"
 grep -Fq 'IpcHandler' "$QML/components/Launcher.qml"
+grep -Fq 'signal launcherRequested()' "$QML/components/Bar.qml"
+grep -Fq 'onLauncherRequested: launcher.toggle()' "$QML/shell.qml"
 grep -Fq 'env -u WAYLAND_DISPLAY qs ipc' "$ROOT/scripts/qs-ipc.sh"
 
 ! grep -RniE '\b(Behavior|NumberAnimation|PropertyAnimation|SpringAnimation|SequentialAnimation|ParallelAnimation)\b' "$QML"

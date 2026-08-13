@@ -11,6 +11,11 @@ FloatingWindow {
     implicitHeight: 420
     color: "#111318"
 
+    function toggle(): void {
+        root.visible = !root.visible
+        if (root.visible) { search.text = ""; root.rebuild(); search.forceActiveFocus() }
+    }
+
     function rebuild(): void {
         const needle = search.text.toLowerCase()
         apps.values = DesktopEntries.applications.values.filter(entry =>
@@ -19,10 +24,7 @@ FloatingWindow {
 
     IpcHandler {
         target: "launcher"
-        function toggle(): void {
-            root.visible = !root.visible
-            if (root.visible) { search.text = ""; root.rebuild(); search.forceActiveFocus() }
-        }
+        function toggle(): void { root.toggle() }
     }
 
     ScriptModel { id: apps; values: DesktopEntries.applications.values }

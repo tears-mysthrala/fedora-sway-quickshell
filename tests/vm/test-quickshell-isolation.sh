@@ -5,8 +5,8 @@ evidence=${EVIDENCE_DIR:-$ROOT/.evidence/quickshell-isolation}
 mkdir -p "$evidence"
 
 swaymsg -t get_version >"$evidence/sway-before.json"
-swaymsg exec 'foot --title isolation-terminal-a' >/dev/null
-swaymsg exec 'foot --title isolation-terminal-b' >/dev/null
+swaymsg exec 'alacritty --title isolation-terminal-a' >/dev/null
+swaymsg exec 'alacritty --title isolation-terminal-b' >/dev/null
 sleep 2
 swaymsg -t get_tree >"$evidence/tree-before.json"
 
@@ -18,7 +18,7 @@ systemctl --user stop fedora-sway-quickshell.service
 swaymsg -t get_version >"$evidence/sway-without-shell.json"
 swaymsg workspace number 2 >/dev/null
 swaymsg workspace number 1 >/dev/null
-swaymsg exec 'foot --title isolation-terminal-after-kill' >/dev/null
+swaymsg exec 'alacritty --title isolation-terminal-after-kill' >/dev/null
 [[ $(pgrep -xo swayidle) == "$idle_pid" ]]
 [[ $(pgrep -fo '/usr/libexec/lxqt-policykit-agent') == "$polkit_pid" ]]
 command -v swaylock >"$evidence/swaylock-path.txt"

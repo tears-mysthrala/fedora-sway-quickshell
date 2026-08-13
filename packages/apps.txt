@@ -1,0 +1,6 @@
+# Small conventional application set for evaluating the workstation layer.
+firefox
+imv
+mousepad
+pavucontrol
+Thunar
