@@ -46,8 +46,8 @@ captures from inside the Sway session.
 
 ```bash
 sudo dnf upgrade --refresh
-git clone <repo> fedora-sway-quickshell-demo
-cd fedora-sway-quickshell-demo
+git clone https://github.com/tears-mysthrala/fedora-sway-quickshell.git
+cd fedora-sway-quickshell
 ./install.sh --dry-run
 ./install.sh
 ```
