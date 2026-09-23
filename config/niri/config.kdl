@@ -147,7 +147,7 @@ binds {
     // Niri asks for confirmation before quitting.
     Mod+Shift+E { quit; }
     Mod+Shift+X { spawn "swaylock"; }
-    Mod+Ctrl+L { spawn "swaylock"; }
+    Mod+Alt+L { spawn "swaylock"; }
     Mod+Ctrl+A { spawn "pavucontrol"; }
     Mod+Ctrl+B { spawn "blueman-manager"; }
     Mod+Ctrl+W { spawn "nm-connection-editor"; }

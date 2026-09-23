@@ -28,11 +28,15 @@ QtObject {
     function rebuildWorkspaces(items: var): void {
         workspaces.clear()
         for (const item of items || []) {
+            // Unnamed workspaces fall back to the 1-based position because
+            // `focus-workspace` addresses workspaces by 1-based position
+            // while IPC `idx` is 0-based. Label and ref stay identical so
+            // the bar activates exactly the workspace it displays.
             const label = item.name ?? String((item.idx ?? 0) + 1)
             workspaces.append({
                 name: label,
                 focused: item.is_focused === true,
-                urgent: false,
+                urgent: item.is_urgent === true,
                 ref: label,
                 wsId: item.id ?? -1
             })
@@ -46,6 +50,15 @@ QtObject {
         refreshTitle()
     }
 
+    function markUrgent(wsId: number, urgent: boolean): void {
+        for (let i = 0; i < workspaces.count; i++) {
+            if (workspaces.get(i).wsId === wsId) {
+                workspaces.setProperty(i, "urgent", urgent)
+                break
+            }
+        }
+    }
+
     function handleEvent(line: string): void {
         let event = null
         try {
@@ -57,9 +70,11 @@ QtObject {
             return
         if (event.WorkspacesChanged)
             rebuildWorkspaces(event.WorkspacesChanged.workspaces)
-        else if (event.WorkspaceActivated)
+        else if (event.WorkspaceActivated && event.WorkspaceActivated.focused === true)
             markFocused(event.WorkspaceActivated.id ?? -1)
-        else if (event.WindowFocusChanged || event.WindowsChanged || event.WorkspaceActiveWindowChanged)
+        else if (event.WorkspaceUrgencyChanged)
+            markUrgent(event.WorkspaceUrgencyChanged.id ?? -1, event.WorkspaceUrgencyChanged.urgent === true)
+        else if (event.WindowFocusChanged || event.WindowsChanged || event.WindowOpenedOrChanged || event.WorkspaceActiveWindowChanged)
             refreshTitle()
     }
 

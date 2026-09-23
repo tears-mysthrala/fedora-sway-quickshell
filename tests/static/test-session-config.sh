@@ -39,6 +39,8 @@ grep -Fq 'focus-column-left' "$niri_conf"
 grep -Fq 'consume-or-expel-window-left' "$niri_conf"
 grep -Fq 'fedora-sway-session.target' "$niri_conf"
 grep -Fq 'niri-session-env.sh' "$niri_conf"
+[[ $(grep -c 'Mod+Ctrl+L' "$niri_conf") -eq 1 ]]
+grep -Fq 'XDG_DATA_HOME:-$HOME/.local/share' "$ROOT/config/systemd/user/fedora-sway-wallpaper-bg.service"
 if grep -Eq '^bindsym F[0-9]+ ' "$niri_conf"; then exit 1; fi
 grep -Fq 'power-off-monitors' "$ROOT/config/swayidle/config-niri"
 grep -Fq 'swaylock' "$ROOT/config/swayidle/config-niri"

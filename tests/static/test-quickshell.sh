@@ -12,6 +12,9 @@ done
 grep -Fq 'import Quickshell.I3' "$QML/components/WorkspaceList.qml"
 [[ -f $QML/components/NiriState.qml ]]
 grep -Fq 'niri msg --json event-stream' "$QML/components/NiriState.qml"
+grep -Fq 'WindowOpenedOrChanged' "$QML/components/NiriState.qml"
+grep -Fq 'WorkspaceUrgencyChanged' "$QML/components/NiriState.qml"
+grep -Fq 'focused === true' "$QML/components/NiriState.qml"
 grep -Fq 'useNiri' "$QML/components/WorkspaceList.qml"
 grep -Fq 'NiriState' "$QML/shell.qml"
 grep -Fq 'niri:' "$QML/shell.qml"
