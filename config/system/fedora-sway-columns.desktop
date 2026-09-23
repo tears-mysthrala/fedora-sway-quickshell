@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Sway (columnas)
+Comment=Sway con capa de teclas estilo Niri/columnas
+Exec=/usr/local/bin/fedora-sway-columns
+Type=Application
+DesktopNames=sway

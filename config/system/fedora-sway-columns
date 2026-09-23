@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Alternative login session: Sway with the niri-style column key layer.
+# Installed as /usr/local/bin/fedora-sway-columns and launched by greetd
+# through the "Sway (columnas)" wayland-sessions entry. Sway remains the
+# default session; this wrapper only selects the columns config.
+set -euo pipefail
+
+config=${XDG_CONFIG_HOME:-$HOME/.config}/sway/config-columns
+[[ -r $config ]] || {
+  printf 'Missing Sway columns config: %s\n' "$config" >&2
+  exit 1
+}
+exec sway --config "$config"
