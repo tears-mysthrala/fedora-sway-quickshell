@@ -17,8 +17,39 @@ grep -Fq 'gaps outer 8' "$config"
 grep -Fq 'Wants=pipewire.service wireplumber.service' "$ROOT/config/systemd/user/fedora-sway-session.target"
 grep -Fq 'fedora-sway-clipboard.service fedora-sway-wallpaper.timer' "$ROOT/config/systemd/user/fedora-sway-session.target"
 
+columns="$ROOT/config/sway/config-columns"
+grep -Fq 'include config' "$columns"
+for binding in 'move left' 'move right' 'move up' 'move down' 'split toggle' \
+  'workspace back_and_forth' 'move scratchpad' 'scratchpad show' \
+  'workspace prev_on_output' 'workspace next_on_output' 'mode "resize"'; do
+  grep -Fq "$binding" "$columns"
+done
+if grep -Eq '^bindsym F[0-9]+ ' "$columns"; then exit 1; fi
+if grep -Fq 'swaybar_command' "$columns"; then exit 1; fi
+if grep -Fq 'fedora-sway-session.target' "$columns"; then exit 1; fi
+
 grep -Fq 'before-sleep' "$ROOT/config/swayidle/config"
 grep -Fq 'swaylock' "$ROOT/config/swayidle/config"
+
+niri_conf="$ROOT/config/niri/config.kdl"
+grep -Fq 'layout "es"' "$niri_conf"
+grep -Fq 'compose:caps' "$niri_conf"
+grep -Fq 'natural-scroll' "$niri_conf"
+grep -Fq 'focus-column-left' "$niri_conf"
+grep -Fq 'consume-or-expel-window-left' "$niri_conf"
+grep -Fq 'fedora-sway-session.target' "$niri_conf"
+grep -Fq 'niri-session-env.sh' "$niri_conf"
+[[ $(grep -c 'Mod+Ctrl+L' "$niri_conf") -eq 1 ]]
+grep -Fq 'XDG_DATA_HOME:-$HOME/.local/share' "$ROOT/config/systemd/user/fedora-sway-wallpaper-bg.service"
+if grep -Eq '^bindsym F[0-9]+ ' "$niri_conf"; then exit 1; fi
+grep -Fq 'power-off-monitors' "$ROOT/config/swayidle/config-niri"
+grep -Fq 'swaylock' "$ROOT/config/swayidle/config-niri"
+grep -Fq 'swayidle-launch.sh' "$ROOT/config/systemd/user/fedora-sway-idle.service"
+[[ -x $ROOT/scripts/swayidle-launch.sh ]]
+[[ -x $ROOT/scripts/niri-session-env.sh ]]
+grep -Fq 'set-environment XDG_CURRENT_DESKTOP=niri' "$ROOT/scripts/niri-session-env.sh"
+grep -Fq 'swaybg' "$ROOT/scripts/wallpaper-rotate.sh"
+[[ -f $ROOT/config/systemd/user/fedora-sway-wallpaper-bg.service ]]
 
 for unit in quickshell idle polkit clipboard; do
   grep -Fq 'PartOf=fedora-sway-session.target' "$ROOT/config/systemd/user/fedora-sway-$unit.service"

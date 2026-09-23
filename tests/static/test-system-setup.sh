@@ -40,5 +40,8 @@ grep -Fq '/etc/dnf/automatic.conf' "$SCRIPT"
 grep -Fq 'dnf5-automatic.timer' "$SCRIPT"
 grep -Fq 'cockpit.socket' "$SCRIPT"
 grep -Fq 'restorecon -RF' "$SCRIPT"
+grep -Fq '/usr/local/bin/fedora-sway-columns' "$SCRIPT"
+grep -Fq '/usr/share/wayland-sessions/fedora-sway-columns.desktop' "$SCRIPT"
+grep -Fq 'modes[index]' "$SCRIPT"
 
 echo 'PASS: system setup guards display-manager detection'

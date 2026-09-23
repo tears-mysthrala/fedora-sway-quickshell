@@ -1,0 +1,167 @@
+// Niri session: native scrolling columns, same project UX as the Sway session.
+//
+// Selected at the greetd login picker ("Niri"). Sway remains the default
+// session. Shared services (Quickshell bar, clipboard history, idle/lock,
+// polkit agent, wallpaper rotation) come from fedora-sway-session.target,
+// started below. No third-party repositories: niri, xwayland-satellite and
+// xdg-desktop-portal-gnome are all official Fedora packages.
+//
+// Key parity with the Sway session: Super+Enter terminal, Super+D launcher,
+// Super+V clipboard, Super+A T3 Code, Super+B Zen, Super+N Neovim,
+// Super+W close. Column motion is native here (focus/move/consume/expel).
+
+input {
+    keyboard {
+        xkb {
+            layout "es"
+            options "compose:caps"
+        }
+        repeat-delay 600
+        repeat-rate 25
+    }
+    touchpad {
+        tap
+        dwt
+        natural-scroll
+    }
+    // Matches `focus_follows_mouse no` in the Sway session.
+    focus-follows-mouse max-scroll-amount "0%"
+}
+
+layout {
+    gaps 6
+    center-focused-column "never"
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+    default-column-width { proportion 0.5; }
+    focus-ring {
+        width 2
+        active-color "#cba6f7"
+        inactive-color "#313244"
+    }
+    border { off; }
+}
+
+// Floating project popups, mirroring the Sway for_window rules.
+window-rule {
+    match app-id="org.quickshell"
+    open-floating true
+}
+window-rule {
+    match app-id="lxqt-policykit-agent"
+    open-floating true
+}
+window-rule {
+    match app-id="pavucontrol"
+    open-floating true
+}
+window-rule {
+    match app-id="nm-connection-editor"
+    open-floating true
+}
+window-rule {
+    match app-id="blueman-manager"
+    open-floating true
+}
+window-rule {
+    match app-id="swappy"
+    open-floating true
+}
+
+// Skip the first-run hotkey overlay; bindings are documented in the README.
+hotkey-overlay { skip-at-startup; }
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+// Bring up the shared session target (bar, clipboard, idle, polkit,
+// wallpaper) and align the systemd user environment with this session.
+spawn-at-startup "sh" "-c" "$HOME/.local/bin/fedora-sway-demo/niri-session-env.sh"
+
+binds {
+    Mod+Return { spawn "alacritty"; }
+    Mod+D { spawn "sh" "-c" "$HOME/.local/bin/fedora-sway-demo/qs-ipc.sh call launcher toggle"; }
+    Mod+V { spawn "sh" "-c" "$HOME/.local/bin/fedora-sway-demo/qs-ipc.sh call clipboard toggle"; }
+    Mod+A { spawn "sh" "-c" "$HOME/.local/bin/t3code"; }
+    Mod+B { spawn "sh" "-c" "$HOME/.local/bin/zen"; }
+    Mod+E { spawn "thunar"; }
+    Mod+N { spawn "alacritty" "-e" "nvim"; }
+    Mod+W { close-window; }
+    Mod+Shift+Q { close-window; }
+    Mod+F { fullscreen-window; }
+    Mod+Shift+F { toggle-windowed-fullscreen; }
+    Mod+Shift+Space { toggle-window-floating; }
+
+    // Native column motion (the Sway columns session emulates this).
+    Mod+H { focus-column-left; }
+    Mod+J { focus-window-down; }
+    Mod+K { focus-window-up; }
+    Mod+L { focus-column-right; }
+    Mod+Left { focus-column-left; }
+    Mod+Down { focus-window-down; }
+    Mod+Up { focus-window-up; }
+    Mod+Right { focus-column-right; }
+    Mod+Shift+H { move-column-left; }
+    Mod+Shift+J { move-window-down; }
+    Mod+Shift+K { move-window-up; }
+    Mod+Shift+L { move-column-right; }
+    Mod+Shift+Left { move-column-left; }
+    Mod+Shift+Down { move-window-down; }
+    Mod+Shift+Up { move-window-up; }
+    Mod+Shift+Right { move-column-right; }
+    Mod+O { consume-or-expel-window-left; }
+    Mod+Shift+O { toggle-overview; }
+    Mod+R { switch-preset-column-width; }
+    Mod+Shift+R { switch-preset-window-width; }
+
+    Mod+Ctrl+H { focus-monitor-left; }
+    Mod+Ctrl+J { focus-monitor-down; }
+    Mod+Ctrl+K { focus-monitor-up; }
+    Mod+Ctrl+L { focus-monitor-right; }
+
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+0 { focus-workspace 10; }
+    Mod+Tab { focus-workspace-down; }
+    Mod+Shift+Tab { focus-workspace-up; }
+    Mod+Ctrl+Tab { focus-workspace-previous; }
+    Mod+Shift+1 { move-column-to-workspace 1; }
+    Mod+Shift+2 { move-column-to-workspace 2; }
+    Mod+Shift+3 { move-column-to-workspace 3; }
+    Mod+Shift+4 { move-column-to-workspace 4; }
+    Mod+Shift+5 { move-column-to-workspace 5; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
+    Mod+Shift+0 { move-column-to-workspace 10; }
+
+    // Niri asks for confirmation before quitting.
+    Mod+Shift+E { quit; }
+    Mod+Shift+X { spawn "swaylock"; }
+    Mod+Alt+L { spawn "swaylock"; }
+    Mod+Ctrl+A { spawn "pavucontrol"; }
+    Mod+Ctrl+B { spawn "blueman-manager"; }
+    Mod+Ctrl+W { spawn "nm-connection-editor"; }
+    Mod+Ctrl+R { spawn "systemctl" "--user" "restart" "fedora-sway-quickshell.service"; }
+
+    Print { spawn "sh" "-c" "$HOME/.local/bin/fedora-sway-demo/screenshot.sh region"; }
+    Shift+Print { spawn "sh" "-c" "$HOME/.local/bin/fedora-sway-demo/screenshot.sh output"; }
+    XF86AudioRaiseVolume { spawn "sh" "-c" "$HOME/.local/bin/fedora-sway-demo/volume.sh up"; }
+    XF86AudioLowerVolume { spawn "sh" "-c" "$HOME/.local/bin/fedora-sway-demo/volume.sh down"; }
+    XF86AudioMute { spawn "sh" "-c" "$HOME/.local/bin/fedora-sway-demo/volume.sh mute"; }
+    XF86AudioMicMute { spawn "sh" "-c" "$HOME/.local/bin/fedora-sway-demo/volume.sh micmute"; }
+    XF86AudioPlay { spawn "playerctl" "play-pause"; }
+    XF86AudioNext { spawn "playerctl" "next"; }
+    XF86AudioPrev { spawn "playerctl" "previous"; }
+    XF86MonBrightnessUp { spawn "sh" "-c" "$HOME/.local/bin/fedora-sway-demo/brightness.sh up"; }
+    XF86MonBrightnessDown { spawn "sh" "-c" "$HOME/.local/bin/fedora-sway-demo/brightness.sh down"; }
+}

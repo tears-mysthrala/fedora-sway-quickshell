@@ -30,6 +30,17 @@ grep -Fq 'export T3CODE_DISABLE_AUTO_UPDATE=true' "$ROOT/scripts/t3code.sh"
 [[ -f $ROOT/config/greetd/config.toml ]]
 grep -Fq 'raiju-sway.conf' "$ROOT/config/greetd/config.toml"
 grep -Fq 'gtkgreet' "$ROOT/config/greetd/raiju-sway.conf"
+[[ -f $ROOT/config/niri/config.kdl ]]
+[[ -f $ROOT/config/xdg-desktop-portal/niri-portals.conf ]]
+grep -Fq 'ScreenCast=gnome' "$ROOT/config/xdg-desktop-portal/niri-portals.conf"
+grep -Fq 'config/niri' "$ROOT/install.sh"
+grep -Fq 'niri-portals.conf' "$ROOT/install.sh"
+grep -Fq 'niri' "$ROOT/docs/DEPENDENCIES.md"
+[[ -f $ROOT/config/sway/config-columns ]]
+[[ -x $ROOT/config/system/fedora-sway-columns ]]
+grep -Fq 'sway --config' "$ROOT/config/system/fedora-sway-columns"
+[[ -f $ROOT/config/system/fedora-sway-columns.desktop ]]
+grep -Fq 'DesktopNames=sway' "$ROOT/config/system/fedora-sway-columns.desktop"
 [[ -f $ROOT/assets/backgrounds/raiju/raiju_guardian_under_crimson_lightning.png ]]
 [[ -f $ROOT/config/applications/t3code.desktop ]]
 [[ -x $ROOT/scripts/install-t3code.sh ]]

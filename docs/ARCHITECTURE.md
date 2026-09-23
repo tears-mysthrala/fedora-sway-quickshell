@@ -37,3 +37,10 @@ Electron sandbox.
 No project code changes DNF repository configuration, SELinux policy,
 firewall state, PAM files or privileged groups. The supported Fedora release
 and application pins are defined once in `config/project.conf`.
+
+The greetd picker additionally offers a Niri session with native
+scrolling columns and the same project keybindings. It reuses the Quickshell
+bar, the systemd session target and all session services; only the
+compositor, its portal backend selection (GNOME for ScreenCast, wlroots for
+screenshots), idle DPMS commands and wallpaper mechanism differ. Sway remains
+the default and the acceptance reference.

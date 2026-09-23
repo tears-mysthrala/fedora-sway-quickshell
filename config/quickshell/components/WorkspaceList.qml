@@ -3,9 +3,14 @@ import QtQuick.Layouts
 import Quickshell.I3
 
 RowLayout {
+    id: root
+    // Set by Bar on the Niri session; null on Sway. The i3 import stays for
+    // the Sway session, where it is the native workspace source.
+    property var niri: null
+    readonly property bool useNiri: niri !== null && niri.active
     spacing: 5
     Repeater {
-        model: I3.workspaces
+        model: root.useNiri ? root.niri.workspaces : I3.workspaces
         delegate: Rectangle {
             required property var modelData
             implicitWidth: modelData.focused ? 30 : 24
@@ -22,7 +27,13 @@ RowLayout {
                 font.pixelSize: 12
                 font.weight: Font.DemiBold
             }
-            MouseArea { id: workspaceMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: modelData.activate() }
+            MouseArea {
+                id: workspaceMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.useNiri ? root.niri.focusWorkspace(modelData.ref) : modelData.activate()
+            }
         }
     }
 }

@@ -16,6 +16,9 @@ FloatingWindow {
     property string page: "overview"
     property string systemInfo: "Cargando…"
     property string displayInfo: "Pantalla integrada"
+    // Shared Niri state from shell.qml; null on the Sway session.
+    property var niri: null
+    readonly property bool useNiri: niri !== null && niri.active
     property string powerProfile: "balanced"
     property int brightness: 50
     property bool inhibitActive: false
@@ -63,7 +66,7 @@ FloatingWindow {
     }
     Process {
         id: displayQuery
-        command: ["sh", "-c", "swaymsg -t get_outputs -r | jq -r '.[] | select(.active) | .name + \" · \" + (.current_mode.width|tostring) + \"×\" + (.current_mode.height|tostring) + \" · escala \" + (.scale|tostring)' | head -1"]
+        command: root.useNiri ? ["sh", "-c", "niri msg --json outputs | jq -r 'to_entries[] | \"\\(.key) · \\(.value.logical.width)×\\(.value.logical.height) · escala \\(.value.logical.scale)\"' | head -1"] : ["sh", "-c", "swaymsg -t get_outputs -r | jq -r '.[] | select(.active) | .name + \" · \" + (.current_mode.width|tostring) + \"×\" + (.current_mode.height|tostring) + \" · escala \" + (.scale|tostring)' | head -1"]
         stdout: StdioCollector { id: displayOutput }
         onExited: root.displayInfo = displayOutput.text.trim() || "Pantalla integrada"
     }

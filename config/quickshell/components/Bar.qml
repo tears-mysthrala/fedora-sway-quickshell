@@ -15,19 +15,28 @@ PanelWindow {
     exclusiveZone: implicitHeight
     property string activeTitle: ""
     property int activeContainerId: -1
+    // Shared Niri state from shell.qml; null on the Sway session.
+    property var niri: null
+    readonly property bool useNiri: niri !== null && niri.active
 
-    I3IpcListener {
-        subscriptions: ["window"]
-        onIpcEvent: event => {
-            const payload = JSON.parse(event.data)
-            if (payload.change === "focus" && payload.container) {
-                root.activeContainerId = payload.container.id
-                root.activeTitle = payload.container.name || payload.container.app_id || ""
-            } else if (payload.change === "title" && payload.container && payload.container.focused) {
-                root.activeTitle = payload.container.name || ""
-            } else if (payload.change === "close" && payload.container && payload.container.id === root.activeContainerId) {
-                root.activeContainerId = -1
-                root.activeTitle = ""
+    // The i3 listener is Sway-only; on Niri the title comes from NiriState.
+    Loader {
+        active: !root.useNiri
+        sourceComponent: Component {
+            I3IpcListener {
+                subscriptions: ["window"]
+                onIpcEvent: event => {
+                    const payload = JSON.parse(event.data)
+                    if (payload.change === "focus" && payload.container) {
+                        root.activeContainerId = payload.container.id
+                        root.activeTitle = payload.container.name || payload.container.app_id || ""
+                    } else if (payload.change === "title" && payload.container && payload.container.focused) {
+                        root.activeTitle = payload.container.name || ""
+                    } else if (payload.change === "close" && payload.container && payload.container.id === root.activeContainerId) {
+                        root.activeContainerId = -1
+                        root.activeTitle = ""
+                    }
+                }
             }
         }
     }
@@ -46,10 +55,10 @@ PanelWindow {
             Text { id: appsText; anchors.centerIn: parent; text: "󰀻  Apps"; color: "#cdd6f4"; font.family: "Cascadia Mono NF"; font.pixelSize: 13; font.weight: Font.DemiBold }
             MouseArea { id: appsMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.launcherRequested() }
         }
-        WorkspaceList {}
+        WorkspaceList { niri: root.niri }
         Text {
             Layout.fillWidth: true
-            text: root.activeTitle
+            text: root.useNiri ? root.niri.activeTitle : root.activeTitle
             color: "#a6adc8"
             elide: Text.ElideRight
             horizontalAlignment: Text.AlignHCenter

@@ -32,5 +32,5 @@ that adds avoidable wakeups and can bypass the version and SHA-256 pin in
 `config/project.conf`. Use `./update-check.sh`, review the upstream release,
 change both pin values, and rerun `./install.sh` instead.
 The setting is upstream's
-[`T3CODE_DISABLE_AUTO_UPDATE`](https://github.com/pingdotgg/t3code/blob/v0.0.33/apps/desktop/src/app/DesktopConfig.ts),
+[`T3CODE_DISABLE_AUTO_UPDATE`](https://github.com/pingdotgg/t3code/blob/v0.0.42/apps/desktop/src/app/DesktopConfig.ts),
 not a binary patch.

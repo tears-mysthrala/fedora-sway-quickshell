@@ -28,6 +28,8 @@ sources=(
   "$ROOT/config/greetd/raiju.css"
   "$ROOT/assets/backgrounds/raiju/raiju_guardian_under_crimson_lightning.png"
   "$ROOT/config/system/dnf-automatic.conf"
+  "$ROOT/config/system/fedora-sway-columns"
+  "$ROOT/config/system/fedora-sway-columns.desktop"
 )
 destinations=(
   /etc/greetd/config.toml
@@ -35,6 +37,17 @@ destinations=(
   /etc/greetd/raiju.css
   /usr/share/backgrounds/raiju/raiju_guardian_under_crimson_lightning.png
   /etc/dnf/automatic.conf
+  /usr/local/bin/fedora-sway-columns
+  /usr/share/wayland-sessions/fedora-sway-columns.desktop
+)
+modes=(
+  0644
+  0644
+  0644
+  0644
+  0644
+  0755
+  0644
 )
 
 verify_files() {
@@ -142,9 +155,9 @@ if [[ ! -f $files_manifest ]]; then
   done
 fi
 for index in "${!sources[@]}"; do
-  install -D -m 0644 -- "${sources[index]}" "${destinations[index]}"
+  install -D -m "${modes[index]}" -- "${sources[index]}" "${destinations[index]}"
 done
-command -v restorecon >/dev/null && restorecon -RF /etc/greetd /usr/share/backgrounds/raiju /etc/dnf/automatic.conf || true
+command -v restorecon >/dev/null && restorecon -RF /etc/greetd /usr/share/backgrounds/raiju /etc/dnf/automatic.conf /usr/local/bin/fedora-sway-columns /usr/share/wayland-sessions/fedora-sway-columns.desktop || true
 
 systemctl set-default graphical.target
 systemctl enable "$session_unit"

@@ -1,0 +1,62 @@
+# Sway (columnas): alternative session with a niri-style column key layer.
+#
+# Selected at the greetd login picker ("Sway (columnas)"). Sway remains the
+# default session; this file only adds keybindings and layout defaults on top
+# of the base config. No extra packages, daemons or portals.
+
+include config
+
+# New windows open side by side as columns; focus wraps around the strip.
+default_orientation horizontal
+focus_wrapping yes
+
+# Column navigation (mirrors the Omarchy scrolling-column UX).
+# Directional focus ($mod+h/j/k/l, arrows) already lives in the base config;
+# these move windows between and inside columns.
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+# Consume/expel equivalent: toggle the split direction of the focused column.
+bindsym $mod+o split toggle
+
+# Return to the previously focused workspace.
+bindsym $mod+Ctrl+Tab workspace back_and_forth
+
+# Move the whole workspace between monitors.
+bindsym $mod+Ctrl+Shift+h move workspace to output left
+bindsym $mod+Ctrl+Shift+j move workspace to output down
+bindsym $mod+Ctrl+Shift+k move workspace to output up
+bindsym $mod+Ctrl+Shift+l move workspace to output right
+bindsym $mod+Ctrl+Shift+Left move workspace to output left
+bindsym $mod+Ctrl+Shift+Down move workspace to output down
+bindsym $mod+Ctrl+Shift+Up move workspace to output up
+bindsym $mod+Ctrl+Shift+Right move workspace to output right
+
+# Scratchpad parity with the reference bindings.
+bindsym $mod+Shift+minus move scratchpad
+bindsym $mod+minus scratchpad show
+
+# Scroll the workspace strip with $mod+wheel.
+bindsym $mod+button4 workspace prev_on_output
+bindsym $mod+button5 workspace next_on_output
+
+# Column width tuning through the conventional Sway resize mode.
+bindsym $mod+r mode "resize"
+mode "resize" {
+    bindsym h resize shrink width 10 ppt
+    bindsym j resize grow height 10 ppt
+    bindsym k resize shrink height 10 ppt
+    bindsym l resize grow width 10 ppt
+    bindsym Left resize shrink width 10 ppt
+    bindsym Down resize grow height 10 ppt
+    bindsym Up resize shrink height 10 ppt
+    bindsym Right resize grow width 10 ppt
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}

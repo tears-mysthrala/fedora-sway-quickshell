@@ -16,5 +16,13 @@ fi
 [[ $index =~ ^[0-9]+$ ]] || index=0
 
 wallpaper=${wallpapers[index % ${#wallpapers[@]}]}
-swaymsg output '*' bg "$wallpaper" fill >/dev/null
+if [[ -n ${NIRI_SOCKET:-} ]]; then
+  # Niri has no built-in wallpaper support; point the persistent swaybg
+  # service at the new image through a stable symlink.
+  current_link=${XDG_DATA_HOME:-$HOME/.local/share}/backgrounds/raiju-current.png
+  ln -sf -- "$wallpaper" "$current_link"
+  systemctl --user restart fedora-sway-wallpaper-bg.service
+else
+  swaymsg output '*' bg "$wallpaper" fill >/dev/null
+fi
 printf '%s\n' "$((index + 1))" > "$state_file"

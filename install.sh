@@ -82,6 +82,11 @@ if [[ $MODE == check ]]; then
   [[ -x $codex_binary ]] || die 'Codex CLI is not installed by this project.'
   [[ $($codex_binary --version) == "codex-cli $CODEX_CLI_VERSION" ]] ||
     die "Codex CLI version does not match $CODEX_CLI_VERSION."
+  if command -v niri >/dev/null; then
+    niri validate || die 'Niri config validation failed.'
+  else
+    die 'Niri is not installed by this project.'
+  fi
   "$ROOT/scripts/install-t3code.sh" check
   "$ROOT/scripts/install-zen.sh" check
   "$ROOT/scripts/system-setup.sh" check
@@ -95,7 +100,7 @@ if [[ $MODE == dry-run ]]; then
   "$ROOT/scripts/install-t3code.sh" dry-run
   "$ROOT/scripts/install-zen.sh" dry-run
   "$ROOT/scripts/system-setup.sh" dry-run
-  for name in sway quickshell swayidle swaylock gtk-3.0 gtk-4.0 qt6ct; do
+  for name in sway niri quickshell swayidle swaylock gtk-3.0 gtk-4.0 qt6ct; do
     log INFO "Would manage ~/.config/$name"
   done
   log INFO 'Would manage project files within ~/.config/environment.d and ~/.config/systemd/user'
@@ -124,6 +129,7 @@ fi
 "$ROOT/scripts/install-zen.sh" install
 
 ensure_managed_link "$ROOT/config/sway" "$HOME/.config/sway"
+ensure_managed_link "$ROOT/config/niri" "$HOME/.config/niri"
 ensure_managed_link "$ROOT/config/quickshell" "$HOME/.config/quickshell"
 ensure_managed_link "$ROOT/config/swayidle" "$HOME/.config/swayidle"
 ensure_managed_link "$ROOT/config/swaylock" "$HOME/.config/swaylock"
@@ -133,6 +139,7 @@ ensure_managed_link "$ROOT/config/gtk-3.0" "$HOME/.config/gtk-3.0"
 ensure_managed_link "$ROOT/config/gtk-4.0" "$HOME/.config/gtk-4.0"
 ensure_managed_link "$ROOT/config/qt6ct" "$HOME/.config/qt6ct"
 ensure_managed_link "$ROOT/config/xdg-desktop-portal/sway-portals.conf" "$HOME/.config/xdg-desktop-portal/sway-portals.conf"
+ensure_managed_link "$ROOT/config/xdg-desktop-portal/niri-portals.conf" "$HOME/.config/xdg-desktop-portal/niri-portals.conf"
 for unit in "$ROOT"/config/systemd/user/*; do
   ensure_managed_link "$unit" "$HOME/.config/systemd/user/$(basename "$unit")"
 done

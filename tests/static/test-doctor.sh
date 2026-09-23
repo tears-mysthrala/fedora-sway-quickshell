@@ -4,6 +4,9 @@ ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 doctor="$ROOT/doctor.sh"
 [[ -x $doctor ]]
 grep -Fq 'swaymsg -t get_version' "$doctor"
+grep -Fq 'Niri IPC responsive' "$doctor"
+grep -Fq 'NIRI_SOCKET' "$doctor"
+grep -Fq 'xwayland-satellite' "$doctor"
 grep -Fq 'wpctl status' "$doctor"
 grep -Fq 'busctl --user' "$doctor"
 grep -Fq 'systemctl --user is-active' "$doctor"
