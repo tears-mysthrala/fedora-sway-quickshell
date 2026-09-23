@@ -72,6 +72,18 @@ the packaged **Sway** session and never performs autologin. TTY recovery remains
 exec dbus-run-session sway
 ```
 
+The login picker also offers **Sway (columnas)**: the same Sway session with
+a niri-style column key layer (`config/sway/config-columns`, directional
+move with `Super+Shift+H/J/K/L`, split toggle with `Super+O`, resize mode
+with `Super+R`). No extra packages or daemons; Sway stays the default.
+
+A native **Niri** session is offered alongside it: real scrolling columns
+(`config/niri/config.kdl`) with the same launcher, terminal, clipboard and
+system bindings, the same Quickshell bar (workspaces and window title follow
+Niri's event stream), and the same idle/lock, clipboard and wallpaper
+services. Screen sharing there goes through the GNOME portal backend, which
+Niri requires; screenshots keep using the wlroots path.
+
 The default terminal binding is `Super+Enter`; the launcher is `Super+D`, Zen
 is `Super+B`, T3 Code is `Super+A`, Neovim is `Super+N`, and clipboard history
 is `Super+V`.

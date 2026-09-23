@@ -12,7 +12,7 @@ failures=0
 # user manager owns the authoritative environment imported by Sway.
 while IFS='=' read -r name value; do
   case $name in
-    DISPLAY|WAYLAND_DISPLAY|SWAYSOCK|XDG_CURRENT_DESKTOP|XDG_RUNTIME_DIR|XDG_SESSION_DESKTOP|XDG_SESSION_TYPE)
+    DISPLAY|WAYLAND_DISPLAY|SWAYSOCK|NIRI_SOCKET|XDG_CURRENT_DESKTOP|XDG_RUNTIME_DIR|XDG_SESSION_DESKTOP|XDG_SESSION_TYPE)
       declare -gx "$name=$value"
       ;;
   esac
@@ -33,9 +33,18 @@ if [[ -r /etc/os-release ]]; then
 else fail 'Fedora identity unavailable'; fi
 
 if [[ ${XDG_SESSION_TYPE:-} == wayland && -n ${WAYLAND_DISPLAY:-} && -S ${XDG_RUNTIME_DIR:-/nonexistent}/${WAYLAND_DISPLAY:-none} ]]; then ok 'Wayland socket available'; else warn 'Wayland session/socket not active in this invocation'; fi
-if swaymsg -t get_version >/dev/null 2>&1; then ok 'Sway IPC responsive'; else fail 'Sway IPC unavailable'; fi
+if [[ -n ${NIRI_SOCKET:-} || ${XDG_CURRENT_DESKTOP:-} == niri ]]; then
+  is_niri=true
+  info 'Niri session detected; compositor checks follow Niri'
+else
+  is_niri=false
+fi
+if [[ -f /usr/share/wayland-sessions/niri.desktop ]]; then info 'Niri login session available'; else info 'Niri login session entry not found'; fi
+if $is_niri; then
+  if niri msg --json outputs >/dev/null 2>&1; then ok 'Niri IPC responsive'; else fail 'Niri IPC unavailable'; fi
+elif swaymsg -t get_version >/dev/null 2>&1; then ok 'Sway IPC responsive'; else fail 'Sway IPC unavailable'; fi
 if "$ROOT/scripts/qs-ipc.sh" show >/dev/null 2>&1 && active_user_unit fedora-sway-quickshell.service; then ok 'Quickshell IPC and user service active'; else fail 'Quickshell IPC or user service unavailable'; fi
-if [[ -n ${DISPLAY:-} ]] && pgrep -x Xwayland >/dev/null; then ok 'XWayland display and process active'; else warn 'XWayland not observed (it may start on demand)'; fi
+if [[ -n ${DISPLAY:-} ]] && { pgrep -x Xwayland >/dev/null || pgrep -x xwayland-satellite >/dev/null; }; then ok 'XWayland display and process active'; else warn 'XWayland not observed (it may start on demand)'; fi
 
 if active_user_unit xdg-desktop-portal.service && has_user_bus_name org.freedesktop.portal.Desktop; then ok 'xdg-desktop-portal active on D-Bus'; else fail 'xdg-desktop-portal frontend unavailable'; fi
 if active_user_unit xdg-desktop-portal-wlr.service; then ok 'xdg-desktop-portal-wlr active'; else fail 'wlroots screen-capture portal inactive'; fi

@@ -1,0 +1,9 @@
+[Unit]
+Description=Niri wallpaper (swaybg)
+PartOf=fedora-sway-session.target
+After=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/swaybg --image %h/.local/share/backgrounds/raiju-current.png --mode fill
+Restart=on-failure
+RestartSec=1

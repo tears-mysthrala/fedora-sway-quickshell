@@ -23,6 +23,9 @@ if grep -Eqi 'hypr|copr' <<<"$packages"; then exit 1; fi
 for required in sway quickshell swayidle swaylock xdg-desktop-portal-wlr; do
   grep -qx "$required" <<<"$packages"
 done
+for required in niri xwayland-satellite xdg-desktop-portal-gnome swaybg; do
+  grep -qx "$required" <<<"$packages"
+done
 for required in alacritty firefox Thunar mousepad pavucontrol imv; do
   grep -qx "$required" <<<"$packages"
 done

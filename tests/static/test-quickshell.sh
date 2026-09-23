@@ -10,6 +10,15 @@ for component in Bar WorkspaceList Launcher AudioStatus NetworkStatus BatterySta
   [[ -f $QML/components/$component.qml ]]
 done
 grep -Fq 'import Quickshell.I3' "$QML/components/WorkspaceList.qml"
+[[ -f $QML/components/NiriState.qml ]]
+grep -Fq 'niri msg --json event-stream' "$QML/components/NiriState.qml"
+grep -Fq 'useNiri' "$QML/components/WorkspaceList.qml"
+grep -Fq 'NiriState' "$QML/shell.qml"
+grep -Fq 'niri:' "$QML/shell.qml"
+if grep -Eq 'Timer|interval' "$QML/components/NiriState.qml"; then
+  echo 'niri state must remain event driven' >&2
+  exit 1
+fi
 grep -Fq 'import Quickshell.Services.Pipewire' "$QML/components/AudioStatus.qml"
 grep -Fq 'command: ["nmcli", "monitor"]' "$QML/components/NetworkStatus.qml"
 grep -Fq 'stdout: SplitParser' "$QML/components/NetworkStatus.qml"

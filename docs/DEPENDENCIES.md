@@ -11,17 +11,20 @@ repository is never modified and cannot supply a declared project package.
 
 | Package | Function and necessity | Alternatives considered |
 |---|---|---|
-| `sway` | Wayland compositor, window manager, workspaces, and IPC. | Other compositors add no v1 benefit over Fedora's maintained Sway package. |
+| `sway` | Wayland compositor, window manager, workspaces, and IPC. Default session. | Niri is offered as an opt-in login session; Sway remains the maintained default. |
+| `niri`, `xwayland-satellite` | Opt-in scrolling-column compositor and its out-of-process XWayland integration. Selected at the greetd picker; shares the Quickshell bar and session services with Sway. | Hyprland would require a COPR and vendored libraries; Niri is an official Fedora package. |
+| `swaybg` | Wallpaper backend for the Niri session (Niri has no built-in wallpaper support). Started on demand by the rotation script. | Sway paints its own background; swaybg stays dormant there. |
 | `quickshell` | QML shell for the bar, launcher, OSD, and notification popup. | Waybar and external launchers would split the UI and do not test the requested Quickshell layer. |
 | `swayidle`, `swaylock` | Independent idle policy and PAM-backed locking. | Keeping these in Quickshell would make the visual shell security-critical. |
-| `xdg-desktop-portal`, `xdg-desktop-portal-wlr`, `xdg-desktop-portal-gtk` | Portal frontend, wlroots capture, and general GTK portal interfaces. All three have distinct roles. | A GNOME/KDE backend would pull in a broader desktop stack. |
+| `xdg-desktop-portal`, `xdg-desktop-portal-wlr`, `xdg-desktop-portal-gtk` | Portal frontend, wlroots capture, and general GTK portal interfaces. All three have distinct roles. | A full GNOME/KDE desktop backend would pull in a broader desktop stack. |
+| `xdg-desktop-portal-gnome` | ScreenCast backend scoped to the Niri session: Niri implements the Mutter ScreenCast interface, so only this backend can drive its portal screen sharing. Screenshot stays on the wlroots backend. | Required by Niri upstream; installed but unused on the Sway session. |
 | `xdg-utils` | Supplies `xdg-open` for URL and file dispatch through the desktop association/portal path. | Browser-specific launch commands would bypass normal desktop integration. |
 | `pipewire`, `pipewire-pulseaudio`, `wireplumber` | Fedora audio graph, PulseAudio compatibility, and session policy. | No custom audio server is justified. |
 | `NetworkManager` | Fedora network service and event source. The Fedora 44 Quickshell build exposes no Ethernet rows in QEMU, so the widget uses one long-lived `nmcli monitor` D-Bus listener and a bounded query only on actual events. | Repeated `nmcli` polling is prohibited; the packaged direct model remains the preferred replacement once it reports the device. |
 | `dbus-daemon` | Provides `dbus-run-session`, used to create an isolated D-Bus session when Sway is started directly from a Fedora Server TTY. | `dbus-broker` remains Fedora's system implementation but does not provide this launcher utility. |
 | `upower` | Event-driven power and battery state. | Direct sysfs polling would add custom hardware logic. |
 | `polkit`, `lxqt-policykit` | System authorization and an independent maintained graphical agent. | Quickshell's agent support is deliberately excluded from the critical path. |
-| `xorg-x11-server-Xwayland` | Compatibility for X11-only applications. | Pure Wayland cannot meet the XWayland acceptance criterion. |
+| `xorg-x11-server-Xwayland` | Compatibility for X11-only applications on the Sway session. | Pure Wayland cannot meet the XWayland acceptance criterion; the Niri session meets it through `xwayland-satellite` instead. |
 | `alacritty` | Conventional GPU-accelerated terminal and recovery surface, selected for a familiar single launcher entry. | Foot is smaller and Wayland-native but exposed confusing client/server launcher entries; Kitty and WezTerm add broader feature surfaces. |
 | `grim`, `slurp` | Wayland screenshot capture and region selection. | Portal screenshots alone are awkward for keybindings. |
 | `wl-clipboard` | Wayland clipboard CLI and screenshot-to-clipboard support. | Quickshell clipboard access requires focus and is unsuitable as the general clipboard mechanism. |
